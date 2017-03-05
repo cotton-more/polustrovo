@@ -1,0 +1,46 @@
+{
+    "name"        : "vansanblch/polustrovo",
+    "description" : "Screenshot taker",
+    "keywords"    : ["microframework","cli"],
+    "homepage"    : "https://github.com/vansanblch/polustrovo",
+    "license"     : "MIT",
+
+    "autoload" : {
+        "psr-4" : {
+            "Cilex\\": "src/Cilex",
+            "Cli\\": "src/Cli"
+        }
+    },
+
+    "authors":[
+        { "name":  "Ivan Nikulin", "email": "vansanblch@gmail.com" }
+    ],
+
+    "require" : {
+        "php"                      : ">=5.5.9",
+        "pimple/pimple"            : "^3.0",
+        "silex/api"                : "^2.0",
+        "symfony/process"          : "^2.7 || ^3.0",
+        "symfony/console"          : "^2.7 || ^3.0",
+        "symfony/event-dispatcher" : "^2.7 || ^3.0",
+        "browshot-php/browshot": "dev-master",
+        "vlucas/phpdotenv": "^2.4",
+        "illuminate/config": "^5.4",
+        "symfony/var-dumper": "^3.2"
+    },
+
+    "require-dev" : {
+        "phpunit/phpunit" : "~3.7"
+    },
+
+    "suggest" : {
+        "symfony/yaml"      : "^2.7 || ^3.0",
+        "symfony/validator" : "^2.7 || ^3.0"
+    },
+
+    "extra" : {
+        "branch-alias" : {
+            "dev-develop": "2.x-dev"
+        }
+   }
+}
