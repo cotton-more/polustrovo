@@ -45,6 +45,7 @@ class ScreenshotService
         $data = $this->browshot->simple([
             'url' => $this->url,
             'instance_id' => 12,
+            'cache' => 0,
         ]);
 
         if (200 === $data['code']) {

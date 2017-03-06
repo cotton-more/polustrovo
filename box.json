@@ -1,9 +1,10 @@
 {
   "alias": "cilex.phar",
   "chmod": "0755",
-  "directories": ["src"],
+  "directories": ["src", "config"],
   "files": [
-    "LICENSE"
+    "LICENSE",
+    ".env"
   ],
   "finder": [
     {
