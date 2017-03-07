@@ -24,6 +24,8 @@ class TakeScreenshot extends Command
         /** @var ScreenshotService $screenshotService */
         $screenshotService = $this->getContainer()->offsetGet('screenshot_service');
 
-        $screenshotService->take();
+        $result = $screenshotService->take();
+
+        $output->writeln($result);
     }
 }

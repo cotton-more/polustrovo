@@ -1,5 +1,7 @@
 .idea
 vendor
 .env
-screenshots
-!*.gitkeep
+screenshots/*
+!.gitkeep
+*.log
+composer.phar

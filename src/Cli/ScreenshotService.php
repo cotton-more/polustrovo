@@ -40,6 +40,9 @@ class ScreenshotService
         $this->screenshotDir = $screenshotDir;
     }
 
+    /**
+     * @return string|false
+     */
     public function take()
     {
         $data = $this->browshot->simple([
@@ -49,18 +52,24 @@ class ScreenshotService
         ]);
 
         if (200 === $data['code']) {
-            $this->saveScreenshot($data['image']);
+            return $this->saveScreenshot($data['image']);
         }
+
+        return false;
     }
 
     /**
      * @param $image
-     * @return int
+     * @return string|false
      */
     private function saveScreenshot($image)
     {
-        $path = $this->getScreenshotDir() . '/plustrovo-' . date('YmdHis') . '.png';
+        $path = $this->getScreenshotDir() . '/polustrovo-' . date('YmdHis') . '.png';
 
-        return file_put_contents($path, $image);
+        if (file_put_contents($path, $image)) {
+            return $path;
+        }
+
+        return false;
     }
 }
