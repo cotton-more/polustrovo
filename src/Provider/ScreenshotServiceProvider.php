@@ -1,6 +1,6 @@
 <?php
 
-namespace Cli\Provider;
+namespace Providers;
 
 use Cli\ScreenshotService;
 use Pimple\Container;

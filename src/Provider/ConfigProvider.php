@@ -1,6 +1,6 @@
 <?php
 
-namespace Cli\Provider;
+namespace Providers;
 
 use Illuminate\Config\Repository;
 use Pimple\Container;
