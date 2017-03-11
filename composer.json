@@ -7,9 +7,12 @@
 
     "autoload" : {
         "psr-4" : {
-            "Cilex\\": "src/Cilex",
-            "Cli\\": "src/Cli"
-        }
+            "Cilex\\": "src/Cilex/",
+            "App\\": "src/App/"
+        },
+        "files": [
+            "app/AppKernel.php"
+        ]
     },
 
     "authors":[
@@ -26,7 +29,10 @@
         "browshot-php/browshot": "dev-master",
         "vlucas/phpdotenv": "^2.4",
         "illuminate/config": "^5.4",
-        "symfony/var-dumper": "^3.2"
+        "symfony/var-dumper": "^3.2",
+        "slim/slim": "^3.0",
+        "illuminate/database": "^5.4",
+        "slim/twig-view": "^2.2"
     },
 
     "require-dev" : {

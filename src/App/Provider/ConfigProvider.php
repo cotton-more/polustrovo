@@ -1,6 +1,6 @@
 <?php
 
-namespace Providers;
+namespace App\Provider;
 
 use Illuminate\Config\Repository;
 use Pimple\Container;
@@ -23,6 +23,7 @@ class ConfigProvider implements ServiceProviderInterface
             $config = new Repository();
 
             $path = $c['root.dir'].'/config/settings.php';
+
             $config->set(require $path);
 
             return $config;

@@ -5,16 +5,16 @@ if (!$loader = include __DIR__ . '/../vendor/autoload.php') {
     die('You must set up the project dependencies.');
 }
 
-$dotenv = new \Dotenv\Dotenv(__DIR__.DIRECTORY_SEPARATOR.'..');
-$dotenv->load();
+$settings = require __DIR__ . '/../config/settings.php';
 
-$app = new \Cilex\Application('Polustrovo Screenshot');
+$kernel = new AppKernel();
 
-$app->register(new Cli\Provider\ConfigProvider());
-$app->register(new Cli\Provider\ScreenshotServiceProvider());
+$app = new \Cilex\Application('Polustrovo Screenshot', '0.1', $settings);
 
-$app['root.dir'] = realpath(__DIR__.'/..');
+foreach ($kernel->providers() as $provider) {
+    $app->register($provider);
+}
 
-$app->command(new Cli\Command\TakeScreenshot());
+$app->command(new Cilex\Command\TakeScreenshot());
 
 $app->run();

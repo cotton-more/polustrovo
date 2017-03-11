@@ -1,9 +1,9 @@
 <?php
 
-namespace Cli\Command;
+namespace Cilex\Command;
 
 use Cilex\Provider\Console\Command;
-use Cli\ScreenshotService;
+use Service\ScreenshotService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

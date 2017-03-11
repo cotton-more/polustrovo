@@ -6,17 +6,12 @@
  * Date: 09.03.17
  * Time: 22:12
  */
-class Kernel
+class AppKernel
 {
-    private $application;
-
-    public function __construct($application)
+    public function __construct()
     {
-        $this->application = $application;
-
-        foreach ($this->providers() as $provider) {
-            $provider->register($application->);
-        }
+        $dotenv = new \Dotenv\Dotenv(__DIR__.'/..');
+        $dotenv->load();
     }
 
     /**
@@ -25,14 +20,16 @@ class Kernel
     public function providers()
     {
         return [
-            new \Provider\ConfigProvider(),
-            new \Provider\DbProvider(),
-            new \Provider\ScreenshotServiceProvider(),
+            new App\Provider\ConfigProvider(),
+            new App\Provider\DbProvider(),
+            new App\Provider\AppServiceProvider(),
         ];
     }
 
-    public function getApplication()
+    public function register(\Pimple\Container $container)
     {
-        return $this->application;
+        foreach ($this->providers() as $provider) {
+            $provider->register($container);
+        }
     }
 }
