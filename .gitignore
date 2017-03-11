@@ -4,5 +4,4 @@ vendor
 screenshots/*
 !.gitkeep
 *.log
-composer.phar
 *.sqlite
