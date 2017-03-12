@@ -2,7 +2,6 @@
 
 namespace App\Provider;
 
-use App\Model\Screenshot;
 use Illuminate\Database\Capsule\Manager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -25,8 +24,14 @@ class DbProvider implements ServiceProviderInterface
 
             return $capsule;
         };
+    }
 
-        $pimple['db']->setAsGlobal();
-        $pimple['db']->bootEloquent();
+    public function boot(Container $pimple)
+    {
+        /** @var Manager $db */
+        $db = $pimple->offsetGet('db');
+
+        $db->setAsGlobal();
+        $db->bootEloquent();
     }
 }

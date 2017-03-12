@@ -32,4 +32,13 @@ class AppKernel
             $provider->register($container);
         }
     }
+
+    public function boot(\Pimple\Container $container)
+    {
+        foreach ($this->providers() as $provider) {
+            if (method_exists($provider, 'boot')) {
+                call_user_func([$provider, 'boot'], $container);
+            }
+        }
+    }
 }

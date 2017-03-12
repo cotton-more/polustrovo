@@ -27,6 +27,7 @@ $kernel = new AppKernel();
 $app = new \Slim\App($settings);
 
 $kernel->register($app->getContainer());
+$kernel->boot($app->getContainer());
 
 require __DIR__ . '/../config/routes.php';
 

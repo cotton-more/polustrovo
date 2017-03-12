@@ -55,7 +55,11 @@ class ScreenshotService
         if (200 === $data['code']) {
             $storeObj = $this->createStoreObject($data);
             foreach ($this->screenshotStorageList as $screenshotStorage) {
-                $screenshotStorage->store($storeObj);
+                try {
+                    $screenshotStorage->store($storeObj);
+                } catch (\Exception $ex) {
+                    // todo: log exception
+                }
             }
         }
 
