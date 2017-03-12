@@ -43,7 +43,7 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot_service'] = function (Container $c) {
-            $service = new ScreenshotService($c['browshot'], $c['config']['url']);
+            $service = new ScreenshotService($c['browshot'], $c['config']['url'], $c['logger']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.eloquent_storage']);

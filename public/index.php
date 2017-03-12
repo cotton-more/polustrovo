@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: inikulin
- * Date: 09.03.17
- * Time: 19:55
- */
 
 if (PHP_SAPI == 'cli-server') {
     // To help the built-in PHP dev server, check if the request was actually for
@@ -15,19 +9,23 @@ if (PHP_SAPI == 'cli-server') {
         return false;
     }
 }
+
 require __DIR__ . '/../vendor/autoload.php';
 session_start();
 // Instantiate the app
 $settings = require __DIR__ . '/../config/settings.php';
-// Register middleware
-//require __DIR__ . '/../config/middleware.php';
-
-$kernel = new AppKernel();
 
 $app = new \Slim\App($settings);
 
-$kernel->register($app->getContainer());
-$kernel->boot($app->getContainer());
+// Register middleware
+// require __DIR__ . '/../config/middleware.php';
+
+/** @var \Slim\Container $container */
+$container = $app->getContainer();
+
+$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware($app));
+
+$kernel = new AppKernel($container);
 
 require __DIR__ . '/../config/routes.php';
 

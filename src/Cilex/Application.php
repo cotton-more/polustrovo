@@ -131,4 +131,14 @@ class Application extends Container
 
         return $command;
     }
+
+    public function get($id)
+    {
+        return $this->offsetGet($id);
+    }
+
+    public function has($id)
+    {
+        return $this->offsetExists($id);
+    }
 }

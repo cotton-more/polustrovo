@@ -13,6 +13,4 @@ class Screenshot extends Model
     protected $fillable = [
         'name', 'is_new', 'shooted_at',
     ];
-
-    public $timestamps = false;
 }

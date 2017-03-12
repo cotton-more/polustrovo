@@ -1,14 +1,9 @@
 <?php
 // Routes
-$app->get('/[{name}]', function () {
+$app->get('/', function () {
+    $response = new \Slim\Http\Response();
 
-    $model = new \App\Model\Screenshot();
+    $data = \App\Model\Screenshot::all();
 
-    try {
-        $all = $model::all();
-    } catch (\Exception $ex) {
-        dump($ex);
-    }
-
-    dump($all);
+    return $response->withJson($data);
 });

@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Model\Screenshot;
 use App\Service\ScreenshotStorage\StorageInterface;
+use Projek\Slim\Monolog;
 
 class ScreenshotService
 {
@@ -23,14 +24,21 @@ class ScreenshotService
     private $screenshotStorageList;
 
     /**
+     * @var Monolog
+     */
+    private $logger;
+
+    /**
      * ScreenshotService constructor.
      * @param \Browshot $browshot
      * @param string $url
+     * @param Monolog $logger
      */
-    public function __construct(\Browshot $browshot, $url)
+    public function __construct(\Browshot $browshot, $url, Monolog $logger)
     {
         $this->browshot = $browshot;
         $this->url = $url;
+        $this->logger = $logger;
     }
 
     /**
@@ -46,11 +54,14 @@ class ScreenshotService
      */
     public function take()
     {
+        $this->logger->debug('taking '.$this->url);
         $data = $this->browshot->simple([
             'url' => $this->url,
             'instance_id' => 12,
             'cache' => 1,
         ]);
+
+        $this->logger->debug('result '.$data['code']);
 
         if (200 === $data['code']) {
             $storeObj = $this->createStoreObject($data);
@@ -61,9 +72,11 @@ class ScreenshotService
                     // todo: log exception
                 }
             }
+        } else {
+            $this->logger->error('Failed to get screenshot');
         }
 
-        return false;
+        $this->logger->debug('end');
     }
 
     /**

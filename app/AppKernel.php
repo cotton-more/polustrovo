@@ -8,10 +8,21 @@
  */
 class AppKernel
 {
-    public function __construct()
+    private $container;
+
+    /**
+     * AppKernel constructor.
+     * @param \Pimple\Container $container
+     */
+    public function __construct($container)
     {
         $dotenv = new \Dotenv\Dotenv(__DIR__.'/..');
         $dotenv->load();
+
+        $this->container = $container;
+
+        $this->register();
+        $this->boot();
     }
 
     /**
@@ -20,24 +31,25 @@ class AppKernel
     public function providers()
     {
         return [
+            new \Projek\Slim\MonologProvider(),
             new App\Provider\ConfigProvider(),
             new App\Provider\DbProvider(),
             new App\Provider\AppServiceProvider(),
         ];
     }
 
-    public function register(\Pimple\Container $container)
+    public function register()
     {
         foreach ($this->providers() as $provider) {
-            $provider->register($container);
+            $provider->register($this->container);
         }
     }
 
-    public function boot(\Pimple\Container $container)
+    public function boot()
     {
         foreach ($this->providers() as $provider) {
             if (method_exists($provider, 'boot')) {
-                call_user_func([$provider, 'boot'], $container);
+                call_user_func([$provider, 'boot'], $this->container);
             }
         }
     }

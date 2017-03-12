@@ -3,7 +3,7 @@
 namespace Cilex\Command;
 
 use Cilex\Provider\Console\Command;
-use Service\ScreenshotService;
+use App\Service\ScreenshotService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -24,8 +24,6 @@ class TakeScreenshot extends Command
         /** @var ScreenshotService $screenshotService */
         $screenshotService = $this->getContainer()->offsetGet('screenshot_service');
 
-        $result = $screenshotService->take();
-
-        $output->writeln($result);
+        $screenshotService->take();
     }
 }

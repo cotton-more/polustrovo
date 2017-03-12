@@ -8,10 +8,13 @@ return [
     'root.dir' => realpath(__DIR__.'/..'),
 
     // Slim Settings
-    'determineRouteBeforeAppMiddleware' => false,
-    'displayErrorDetails' => true,
-
     'settings' => [
+        'determineRouteBeforeAppMiddleware' => false,
+        'displayErrorDetails' => true,
+
+        // Enable whoops
+        'debug'         => true,
+
         'db' => [
             'driver' => 'sqlite',
             'host' => 'localhost',
@@ -25,6 +28,16 @@ return [
 
         'view' => [
             'templates' => realpath(__DIR__.'/../templates'),
+        ],
+
+        'logger' => [
+            'directory' => realpath(__DIR__.'/..'),
+            // Your timezone
+//            'timezone' => 'Asia/Jakarta',
+            'level' => 'debug',
+            'handlers' => [
+                new \Monolog\Handler\StreamHandler('php://stdout'),
+            ],
         ],
     ],
 ];
