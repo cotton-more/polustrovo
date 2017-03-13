@@ -11,6 +11,8 @@ use League\Glide\Responses\SlimResponseFactory;
 use League\Glide\ServerFactory as GlideServerFactory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Slim\Views\Twig;
+use Slim\Views\TwigExtension;
 
 class AppServiceProvider implements ServiceProviderInterface
 {
@@ -46,7 +48,7 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot_service'] = function (Container $c) {
-            $service = new ScreenshotService($c['browshot'], $c['config']['url'], $c['logger']);
+            $service = new ScreenshotService($c['browshot'], $c['config']['url'], $c['db'], $c['logger']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.eloquent_storage']);
@@ -71,10 +73,23 @@ class AppServiceProvider implements ServiceProviderInterface
 
         $pimple['glide.screenshot'] = function (Container $c) {
             $service = new GlideScreenshotService(
-                $c['glide.screenshot.server'] // \League\Glide\Server
+                $c['glide.screenshot.server'], // \League\Glide\Server
+                $c['db']
             );
 
             return $service;
+        };
+
+        $pimple['view'] = function (Container $c) {
+            $view = new Twig($c['settings']['view']['templates'], [
+                'cache' => $c['settings']['view']['cache'],
+            ]);
+
+            // Instantiate and add Slim specific extension
+            $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
+            $view->addExtension(new TwigExtension($c['router'], $basePath));
+
+            return $view;
         };
     }
 }

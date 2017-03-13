@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% block head %}
+    <title>{% block title %}{% endblock %} - Setl Polustrovo</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/foundation.min.css" />
+    {% endblock %}
+</head>
+<body>
+    <div id="content">{% block content %}{% endblock %}</div>
+</body>
+</html>
