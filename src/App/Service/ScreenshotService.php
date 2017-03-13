@@ -65,6 +65,7 @@ class ScreenshotService
 
         if (200 === $data['code']) {
             $storeObj = $this->createStoreObject($data);
+            $this->logger->debug('store', ['name' => $storeObj->name]);
             foreach ($this->screenshotStorageList as $screenshotStorage) {
                 try {
                     $screenshotStorage->store($storeObj);
