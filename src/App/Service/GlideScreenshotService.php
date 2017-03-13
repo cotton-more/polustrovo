@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Illuminate\Database\Capsule\Manager;
 use League\Glide\Server as GlideServer;
 
 class GlideScreenshotService
@@ -11,19 +12,29 @@ class GlideScreenshotService
      */
     private $server;
 
-    public function __construct(GlideServer $server)
+    /**
+     * @var Manager
+     */
+    private $db;
+
+    public function __construct(GlideServer $server, Manager $db)
     {
         $this->server = $server;
+        $this->db = $db;
     }
 
     /**
-     * @param $name
+     * @param $screenshotId
      * @return mixed
      */
-    public function imageResponse($name)
+    public function imageResponse($screenshotId)
     {
-        $path = $name.'.png';
+        $image = $this->db->table('screenshot')->where('screenshot_id', $screenshotId)->first();
 
-        return $this->server->getImageResponse($path, []);
+        $this->db->table('screenshot')->where('screenshot_id', $screenshotId)->update([
+            'is_new' => 0,
+        ]);
+
+        return $this->server->getImageResponse($image->name, []);
     }
 }

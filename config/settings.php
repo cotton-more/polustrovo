@@ -29,6 +29,7 @@ return [
 
         'view' => [
             'templates' => realpath(__DIR__.'/../templates'),
+            'cache' => getenv('VIEW_CACHE') ?: false,
         ],
 
         'logger' => [

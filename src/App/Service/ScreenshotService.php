@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Model\Screenshot;
 use App\Service\ScreenshotStorage\StorageInterface;
+use Illuminate\Database\Capsule\Manager;
 use Projek\Slim\Monolog;
 
 class ScreenshotService
@@ -24,6 +25,11 @@ class ScreenshotService
     private $screenshotStorageList;
 
     /**
+     * @var Manager
+     */
+    private $db;
+
+    /**
      * @var Monolog
      */
     private $logger;
@@ -33,11 +39,13 @@ class ScreenshotService
      * @param \Browshot $browshot
      * @param string $url
      * @param Monolog $logger
+     * @param Manager $db
      */
-    public function __construct(\Browshot $browshot, $url, Monolog $logger)
+    public function __construct(\Browshot $browshot, $url, Manager $db, Monolog $logger)
     {
         $this->browshot = $browshot;
         $this->url = $url;
+        $this->db = $db;
         $this->logger = $logger;
     }
 
@@ -92,5 +100,12 @@ class ScreenshotService
         $obj->image = $data['image'];
 
         return $obj;
+    }
+
+    public function getLatestImage()
+    {
+        $image = $this->db->table('screenshot')->latest()->first();
+
+        return $image;
     }
 }
