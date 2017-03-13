@@ -3,9 +3,12 @@
 namespace App\Provider;
 
 use App\Model\Screenshot;
+use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\EloquentStorage;
 use App\Service\ScreenshotStorage\FileStorage;
+use League\Glide\Responses\SlimResponseFactory;
+use League\Glide\ServerFactory as GlideServerFactory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -47,6 +50,29 @@ class AppServiceProvider implements ServiceProviderInterface
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.eloquent_storage']);
+
+            return $service;
+        };
+
+        $pimple['glide.screenshot.server'] = function (Container $c) {
+            $cacheDir = $c['config']['cache_dir'].'/glide';
+            if (false === is_dir($cacheDir)) {
+                mkdir($c['config']['cache_dir'].'/glide');
+            }
+
+            $server = GlideServerFactory::create([
+                'source' => $c['config']['screenshot_dir'],
+                'cache' => $cacheDir,
+                'response' => new SlimResponseFactory(),
+            ]);
+
+            return $server;
+        };
+
+        $pimple['glide.screenshot'] = function (Container $c) {
+            $service = new GlideScreenshotService(
+                $c['glide.screenshot.server'] // \League\Glide\Server
+            );
 
             return $service;
         };

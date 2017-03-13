@@ -5,3 +5,7 @@ screenshots/*
 !.gitkeep
 *.log
 *.sqlite
+var/*
+!var/cache
+var/cache/*
+!var/cache/.gitkeep

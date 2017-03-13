@@ -7,3 +7,8 @@ $app->get('/', function () {
 
     return $response->withJson($data);
 });
+$app->get('/image/{name}', function ($req, $resp, $args) {
+    $resp = $this->get('glide.screenshot')->imageResponse($args['name']);
+
+    return $resp;
+});

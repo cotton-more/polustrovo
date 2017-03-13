@@ -6,6 +6,7 @@ return [
     'screenshot_dir' => realpath(__DIR__.'/../screenshots'),
 
     'root.dir' => realpath(__DIR__.'/..'),
+    'cache_dir' => realpath(__DIR__.'/../var/cache'),
 
     // Slim Settings
     'settings' => [

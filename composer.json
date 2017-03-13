@@ -34,7 +34,9 @@
         "illuminate/database": "^5.4",
         "slim/twig-view": "^2.2",
         "zeuxisoo/slim-whoops": "^0.6.0",
-        "projek-xyz/slim-monolog": "^0.1.6"
+        "projek-xyz/slim-monolog": "^0.1.6",
+        "league/glide": "^1.2",
+        "league/glide-slim": "^1.0"
     },
 
     "require-dev" : {
