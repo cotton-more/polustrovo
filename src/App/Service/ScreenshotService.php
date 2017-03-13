@@ -87,7 +87,7 @@ class ScreenshotService
     {
         $obj = new \stdClass();
 
-        $obj->name = date('Ymd').'_'.uniqid().'.png';
+        $obj->name = time().'_'.uniqid().'.png';
         $obj->image = $data['image'];
 
         return $obj;
