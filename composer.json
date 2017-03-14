@@ -31,13 +31,15 @@
         "illuminate/config": "^5.4",
         "symfony/var-dumper": "^3.2",
         "slim/slim": "^3.0",
-        "illuminate/database": "^5.4",
         "slim/twig-view": "^2.2",
         "zeuxisoo/slim-whoops": "^0.6.0",
         "projek-xyz/slim-monolog": "^0.1.6",
         "league/glide": "^1.2",
         "league/glide-slim": "^1.0",
-        "robmorgan/phinx": "^0.8.0"
+        "robmorgan/phinx": "^0.8.0",
+        "doctrine/dbal": "^2.5",
+        "ramsey/uuid": "^3.5",
+        "nesbot/carbon": "^1.22"
     },
 
     "require-dev" : {

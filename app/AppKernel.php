@@ -33,7 +33,7 @@ class AppKernel
         return [
             new \Projek\Slim\MonologProvider(),
             new App\Provider\ConfigProvider(),
-            new App\Provider\DbProvider(),
+            new App\Provider\DbalProvider(),
             new App\Provider\AppServiceProvider(),
         ];
     }

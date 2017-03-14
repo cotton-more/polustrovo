@@ -7,9 +7,9 @@ $app->get('/image/{screenshot_id}', function ($req, $resp, $args) {
 });
 
 $app->get('/', function ($req, $resp) {
-    $image = $this->get('screenshot_service')->getLatestImage();
+//    $image = $this->get('screenshot_service')->getLatestImage();
 
-    return $this->view->render($resp, 'index.twig', [
-        'image' => $image,
-    ]);
+//    return $this->view->render($resp, 'index.twig', [
+//        'image' => $image,
+//    ]);
 });

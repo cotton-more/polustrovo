@@ -2,8 +2,9 @@
 
 namespace App\Service;
 
-use Illuminate\Database\Capsule\Manager;
+use Doctrine\DBAL\Connection;
 use League\Glide\Server as GlideServer;
+use Psr\Http\Message\ResponseInterface;
 
 class GlideScreenshotService
 {
@@ -13,28 +14,27 @@ class GlideScreenshotService
     private $server;
 
     /**
-     * @var Manager
+     * @var Connection
      */
-    private $db;
+    private $conn;
 
-    public function __construct(GlideServer $server, Manager $db)
+    public function __construct(GlideServer $server, Connection $conn)
     {
         $this->server = $server;
-        $this->db = $db;
+        $this->conn = $conn;
     }
 
     /**
      * @param $screenshotId
-     * @return mixed
+     * @param array $params
+     * @return ResponseInterface
      */
-    public function imageResponse($screenshotId)
+    public function imageResponse($screenshotId, array $params = [])
     {
-        $image = $this->db->table('screenshot')->where('screenshot_id', $screenshotId)->first();
-
-        $this->db->table('screenshot')->where('screenshot_id', $screenshotId)->update([
-            'is_new' => 0,
+        $image = $this->conn->fetchAssoc('SELECT * FROM screenshot WHERE screenshot_id = ?', [
+            $screenshotId
         ]);
 
-        return $this->server->getImageResponse($image->name, []);
+        return $this->server->getImageResponse($image['path'], $params);
     }
 }

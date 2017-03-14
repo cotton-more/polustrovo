@@ -25,11 +25,6 @@ class ScreenshotService
     private $screenshotStorageList;
 
     /**
-     * @var Manager
-     */
-    private $db;
-
-    /**
      * @var Monolog
      */
     private $logger;
@@ -39,13 +34,11 @@ class ScreenshotService
      * @param \Browshot $browshot
      * @param string $url
      * @param Monolog $logger
-     * @param Manager $db
      */
-    public function __construct(\Browshot $browshot, $url, Manager $db, Monolog $logger)
+    public function __construct(\Browshot $browshot, $url, Monolog $logger)
     {
         $this->browshot = $browshot;
         $this->url = $url;
-        $this->db = $db;
         $this->logger = $logger;
     }
 
@@ -73,12 +66,12 @@ class ScreenshotService
 
         if (200 === $data['code']) {
             $storeObj = $this->createStoreObject($data);
-            $this->logger->debug('store', ['name' => $storeObj->name]);
+            $this->logger->debug('store', ['path' => $storeObj->path]);
             foreach ($this->screenshotStorageList as $screenshotStorage) {
                 try {
                     $screenshotStorage->store($storeObj);
                 } catch (\Exception $ex) {
-                    // todo: log exception
+                    $this->logger->warning($ex->getMessage());
                 }
             }
         } else {
@@ -96,16 +89,9 @@ class ScreenshotService
     {
         $obj = new \stdClass();
 
-        $obj->name = time().'_'.uniqid().'.png';
+        $obj->path = time().'_'.uniqid().'.png';
         $obj->image = $data['image'];
 
         return $obj;
-    }
-
-    public function getLatestImage()
-    {
-        $image = $this->db->table('screenshot')->latest()->first();
-
-        return $image;
     }
 }

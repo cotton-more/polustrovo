@@ -24,7 +24,7 @@ class FileStorage implements StorageInterface
      */
     public function store(\stdClass $data)
     {
-        $filename = $this->dir . '/' . $data->name;
+        $filename = $this->dir . '/' . $data->path;
         $result = file_put_contents($filename, $data->image);
 
         return $result > 0;
