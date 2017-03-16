@@ -2,9 +2,8 @@
 
 namespace App\Service;
 
-use App\Model\Screenshot;
 use App\Service\ScreenshotStorage\StorageInterface;
-use Illuminate\Database\Capsule\Manager;
+use Doctrine\DBAL\Connection;
 use Projek\Slim\Monolog;
 
 class ScreenshotService
@@ -30,16 +29,22 @@ class ScreenshotService
     private $logger;
 
     /**
+     * @var Connection
+     */
+    private $db;
+
+    /**
      * ScreenshotService constructor.
      * @param \Browshot $browshot
      * @param string $url
      * @param Monolog $logger
      */
-    public function __construct(\Browshot $browshot, $url, Monolog $logger)
+    public function __construct(\Browshot $browshot, $url, Monolog $logger, Connection $db)
     {
         $this->browshot = $browshot;
         $this->url = $url;
         $this->logger = $logger;
+        $this->db = $db;
     }
 
     /**
@@ -51,7 +56,7 @@ class ScreenshotService
     }
 
     /**
-     * @return string|false
+     * @return void
      */
     public function take()
     {
@@ -79,6 +84,14 @@ class ScreenshotService
         }
 
         $this->logger->debug('end');
+    }
+
+    public function getLatest()
+    {
+        $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
+        $image = $this->db->fetchAssoc($sql);
+
+        return $image;
     }
 
     /**

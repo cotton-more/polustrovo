@@ -3,9 +3,11 @@
 {% block title %}Index{% endblock %}
 
 {% block content %}
-    <h1>Index</h1>
-    <div>
-        <p>Shooted at: {{ image.shooted_at|date("F jS \\a\\t g:ia") }}</p>
-        <img src="/image/{{ image.screenshot_id }}" alt="" />
+    <h2>Recent screenshot</h2>
+    <div class="card">
+        <div class="card-divider">
+            <p>Shooted at: {{ image.shooted_at|date("F jS \\a\\t g:ia") }}</p>
+        </div>
+        <img src="/image/{{ image.screenshot_id }}" alt="recent screenshot" />
     </div>
 {% endblock %}

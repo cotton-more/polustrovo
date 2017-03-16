@@ -10,6 +10,13 @@
     {% endblock %}
 </head>
 <body>
-    <div id="content">{% block content %}{% endblock %}</div>
+    <div class="callout large primary">
+        <div class="row-column text-center">
+            <h1>Screenshots</h1>
+        </div>
+    </div>
+    <div class="column row">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

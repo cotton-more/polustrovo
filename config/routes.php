@@ -6,10 +6,4 @@ $app->get('/image/{screenshot_id}', function ($req, $resp, $args) {
     return $resp;
 });
 
-$app->get('/', function ($req, $resp) {
-//    $image = $this->get('screenshot_service')->getLatestImage();
-
-//    return $this->view->render($resp, 'index.twig', [
-//        'image' => $image,
-//    ]);
-});
+$app->get('/', 'index_controller:index');

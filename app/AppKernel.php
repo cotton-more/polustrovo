@@ -35,6 +35,7 @@ class AppKernel
             new App\Provider\ConfigProvider(),
             new App\Provider\DbalProvider(),
             new App\Provider\AppServiceProvider(),
+            new App\Provider\RouteServiceProvider(),
         ];
     }
 

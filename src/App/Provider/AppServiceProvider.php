@@ -2,11 +2,11 @@
 
 namespace App\Provider;
 
+use App\Http\IndexController;
 use App\Model\Screenshot;
 use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
-use App\Service\ScreenshotStorage\EloquentStorage;
 use App\Service\ScreenshotStorage\FileStorage;
 use League\Glide\Responses\SlimResponseFactory;
 use League\Glide\ServerFactory as GlideServerFactory;
@@ -48,8 +48,8 @@ class AppServiceProvider implements ServiceProviderInterface
             return $storage;
         };
 
-        $pimple['screenshot_service'] = function (Container $c) {
-            $service = new ScreenshotService($c['browshot'], $c['config']['url'], $c['logger']);
+        $pimple['screenshot'] = function (Container $c) {
+            $service = new ScreenshotService($c['browshot'], $c['config']['url'], $c['logger'], $c['db']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
