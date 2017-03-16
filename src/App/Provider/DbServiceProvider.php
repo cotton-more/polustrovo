@@ -8,7 +8,7 @@ use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
-class DbalProvider implements ServiceProviderInterface
+class DbServiceProvider implements ServiceProviderInterface
 {
     /**
      * Registers services on the given container.

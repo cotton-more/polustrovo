@@ -6,7 +6,7 @@ use Illuminate\Config\Repository;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
-class ConfigProvider implements ServiceProviderInterface
+class ConfigServiceProvider implements ServiceProviderInterface
 {
 
     /**

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: inikulin
- * Date: 09.03.17
- * Time: 22:12
- */
 class AppKernel
 {
     private $container;
@@ -31,9 +25,9 @@ class AppKernel
     public function providers()
     {
         return [
-            new \Projek\Slim\MonologProvider(),
-            new App\Provider\ConfigProvider(),
-            new App\Provider\DbalProvider(),
+            new Projek\Slim\MonologProvider(),
+            new App\Provider\ConfigServiceProvider(),
+            new App\Provider\DbServiceProvider(),
             new App\Provider\AppServiceProvider(),
             new App\Provider\RouteServiceProvider(),
         ];
