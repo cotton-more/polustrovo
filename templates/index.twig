@@ -3,11 +3,16 @@
 {% block title %}Index{% endblock %}
 
 {% block content %}
-    <h2>Recent screenshot</h2>
-    <div class="card">
-        <div class="card-divider">
-            <p>Shooted at: {{ image.shooted_at|date("F jS \\a\\t g:ia") }}</p>
+    <div class="row align-center">
+        <div class="small-10 column">
+            <h2>Recent screenshot</h2>
+
+            <div class="card">
+                <div class="card-divider">
+                    <p>Shooted at: {{ image.shooted_at|date("F jS \\a\\t g:ia") }}</p>
+                </div>
+                <img src="/image/{{ image.screenshot_id }}" alt="recent screenshot" />
+            </div>
         </div>
-        <img src="/image/{{ image.screenshot_id }}" alt="recent screenshot" />
     </div>
 {% endblock %}
