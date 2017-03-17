@@ -3,6 +3,7 @@
 namespace App\Provider;
 
 use App\Http\IndexController;
+use App\Http\ScreenshotController;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -20,6 +21,12 @@ class RouteServiceProvider implements ServiceProviderInterface
     {
         $pimple['index_controller'] = function (Container $c) {
             $controller = new IndexController($c);
+
+            return $controller;
+        };
+
+        $pimple['screenshot_controller'] = function (Container $c) {
+            $controller = new ScreenshotController($c['view'], $c['screenshot']);
 
             return $controller;
         };

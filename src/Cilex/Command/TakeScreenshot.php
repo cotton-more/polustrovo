@@ -22,7 +22,7 @@ class TakeScreenshot extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var ScreenshotService $screenshotService */
-        $screenshotService = $this->getContainer()->offsetGet('screenshot_service');
+        $screenshotService = $this->getContainer()->offsetGet('screenshot');
 
         $screenshotService->take();
     }

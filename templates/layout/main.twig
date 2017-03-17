@@ -7,6 +7,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/css/foundation.min.css" />
+    <link rel="stylesheet" href="/css/foundation-icons.css" />
     {% endblock %}
 </head>
 <body>
@@ -15,6 +16,12 @@
             <h1>Screenshots</h1>
         </div>
     </div>
+    <nav class=" menu-centered">
+        <ul class="menu simple">
+            <li><a href="{{ path_for('home') }}"><i class="fi-home"></i> Home</a></li>
+            <li><a href="{{ path_for('screenshot_current_week') }}">Current week</a></li>
+        </ul>
+    </nav>
     <div class="column row">
         {% block content %}{% endblock %}
     </div>

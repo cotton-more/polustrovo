@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Service\ScreenshotStorage\StorageInterface;
+use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
 use Projek\Slim\Monolog;
 
@@ -86,14 +87,6 @@ class ScreenshotService
         $this->logger->debug('end');
     }
 
-    public function getLatest()
-    {
-        $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
-        $image = $this->db->fetchAssoc($sql);
-
-        return $image;
-    }
-
     /**
      * @param array $data
      * @return \stdClass
@@ -106,5 +99,23 @@ class ScreenshotService
         $obj->image = $data['image'];
 
         return $obj;
+    }
+
+    public function getLatest()
+    {
+        $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
+        $image = $this->db->fetchAssoc($sql);
+
+        return $image;
+    }
+
+    public function getCurrentWeek()
+    {
+        $monday = Carbon::today()->startOfWeek();
+        $sql = 'SELECT * FROM screenshot WHERE created_at >= ? ORDER BY created_at ASC';
+
+        $images = $this->db->fetchAll($sql, [$monday]);
+
+        return $images;
     }
 }

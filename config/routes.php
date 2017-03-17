@@ -6,4 +6,8 @@ $app->get('/image/{screenshot_id}', function ($req, $resp, $args) {
     return $resp;
 });
 
-$app->get('/', 'index_controller:index');
+$app->get('/', 'index_controller:index')->setName('home');
+
+$app->group('/screenshot', function () {
+    $this->get('/current_week', 'screenshot_controller:currentWeekAction')->setName('screenshot_current_week');
+});
