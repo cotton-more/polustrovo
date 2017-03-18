@@ -145,4 +145,18 @@ SQL;
 
         return $result;
     }
+
+    public function getForDate($date)
+    {
+        $sql = 'SELECT * FROM screenshot WHERE created_at >= ? AND created_at < ? ORDER BY created_at ASC';
+
+        $start = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+        $end = $start->copy()->addDay();
+
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql, [$start, $end]);
+
+        $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
+
+        return $result;    }
 }
