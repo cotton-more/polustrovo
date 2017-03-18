@@ -35,4 +35,11 @@ class ScreenshotController
 
         return $this->view->render($resp, 'screenshot/images.twig', compact('images'));
     }
+
+    public function calendarAction($req, $resp)
+    {
+        $calendar = $this->screenshotService->getDaily();
+
+        return $this->view->render($resp, 'screenshot/calendar_daily.twig', compact('calendar'));
+    }
 }

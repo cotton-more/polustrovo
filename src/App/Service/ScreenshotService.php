@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Screenshot;
+use App\ScreenshotsDaily;
 use App\ScreenshotStack;
 use App\Service\ScreenshotStorage\StorageInterface;
 use Carbon\Carbon;
@@ -123,8 +124,25 @@ class ScreenshotService
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
 
-        $screenshots = new ScreenshotStack($result);
+        return $result;
+    }
 
-        return $screenshots;
+    /**
+     * @return ScreenshotsDaily[]
+     */
+    public function getDaily()
+    {
+        $sql = <<<SQL
+SELECT group_concat(screenshot_id) AS ids, count(*) AS count, date(shooted_at) AS date
+FROM screenshot
+GROUP BY date(shooted_at)
+SQL;
+
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql);
+
+        $result = $stmt->fetchAll(\PDO::FETCH_CLASS, ScreenshotsDaily::class);
+
+        return $result;
     }
 }
