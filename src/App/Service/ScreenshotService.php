@@ -18,16 +18,6 @@ class ScreenshotService
     private $browshot;
 
     /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var StorageInterface[]
-     */
-    private $screenshotStorageList;
-
-    /**
      * @var Monolog
      */
     private $logger;
@@ -38,15 +28,20 @@ class ScreenshotService
     private $db;
 
     /**
+     * @var StorageInterface[]
+     */
+    private $screenshotStorageList;
+
+    /**
      * ScreenshotService constructor.
      * @param \Browshot $browshot
-     * @param string $url
      * @param Monolog $logger
+     * @param Connection $db
+     * @internal param string $url
      */
-    public function __construct(\Browshot $browshot, $url, Monolog $logger, Connection $db)
+    public function __construct(\Browshot $browshot, Monolog $logger, Connection $db)
     {
         $this->browshot = $browshot;
-        $this->url = $url;
         $this->logger = $logger;
         $this->db = $db;
     }
@@ -60,13 +55,15 @@ class ScreenshotService
     }
 
     /**
+     * @param string $url
      * @return void
      */
-    public function take()
+    public function take($url)
     {
-        $this->logger->debug('taking '.$this->url);
+
+        $this->logger->debug('taking '.$url);
         $data = $this->browshot->simple([
-            'url' => $this->url,
+            'url' => $url,
             'instance_id' => 12,
             'cache' => 1,
         ]);
