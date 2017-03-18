@@ -86,6 +86,10 @@ class AppServiceProvider implements ServiceProviderInterface
                 'cache' => $c['settings']['view']['cache'],
             ]);
 
+            $view->getEnvironment()->enableDebug();
+
+            $view->addExtension(new \Twig_Extension_Debug());
+
             // Instantiate and add Slim specific extension
             $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
             $view->addExtension(new TwigExtension($c['router'], $basePath));

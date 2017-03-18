@@ -2,9 +2,12 @@
 
 namespace App\Service;
 
+use App\Screenshot;
+use App\ScreenshotStack;
 use App\Service\ScreenshotStorage\StorageInterface;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOStatement;
 use Projek\Slim\Monolog;
 
 class ScreenshotService
@@ -104,7 +107,11 @@ class ScreenshotService
     public function getLatest()
     {
         $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
-        $image = $this->db->fetchAssoc($sql);
+
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql);
+
+        $image = $stmt->fetchObject(Screenshot::class);
 
         return $image;
     }
@@ -114,8 +121,13 @@ class ScreenshotService
         $monday = Carbon::today()->startOfWeek();
         $sql = 'SELECT * FROM screenshot WHERE created_at >= ? ORDER BY created_at ASC';
 
-        $images = $this->db->fetchAll($sql, [$monday]);
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql, [$monday]);
 
-        return $images;
+        $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
+
+        $screenshots = new ScreenshotStack($result);
+
+        return $screenshots;
     }
 }

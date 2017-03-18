@@ -9,9 +9,9 @@
 
             <div class="card">
                 <div class="card-divider">
-                    <p>Shooted at: {{ image.shooted_at|date("F jS \\a\\t g:ia") }}</p>
+                    <p>Shooted at: {{ image.attr('shooted_at') }}</p>
                 </div>
-                <img src="/image/{{ image.screenshot_id }}" alt="recent screenshot" />
+                <img src="/image/{{ image.id }}" alt="recent screenshot" />
             </div>
         </div>
     </div>
