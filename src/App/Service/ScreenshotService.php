@@ -5,6 +5,10 @@ namespace App\Service;
 use App\Screenshot;
 use App\ScreenshotsDaily;
 use App\ScreenshotStack;
+use App\Service\Browshot\ApiClient;
+use App\Service\Browshot\Model\ScreenshotSimple;
+use App\Service\Browshot\Response\ScreenshotErrorResponse;
+use App\Service\Browshot\ScreenshotException;
 use App\Service\ScreenshotStorage\StorageInterface;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
@@ -14,9 +18,9 @@ use Projek\Slim\Monolog;
 class ScreenshotService
 {
     /**
-     * @var \Browshot
+     * @var ApiClient
      */
-    private $browshot;
+    private $client;
 
     /**
      * @var Monolog
@@ -35,14 +39,13 @@ class ScreenshotService
 
     /**
      * ScreenshotService constructor.
-     * @param \Browshot $browshot
+     * @param ApiClient $client
      * @param Monolog $logger
      * @param Connection $db
-     * @internal param string $url
      */
-    public function __construct(\Browshot $browshot, Monolog $logger, Connection $db)
+    public function __construct(ApiClient $client, Monolog $logger, Connection $db)
     {
-        $this->browshot = $browshot;
+        $this->client = $client;
         $this->logger = $logger;
         $this->db = $db;
     }
@@ -57,49 +60,33 @@ class ScreenshotService
 
     /**
      * @param string $url
-     * @return void
+     * @return bool
      */
     public function take($url)
     {
+        $this->logger->debug('start', ['url' => $url]);
 
-        $this->logger->debug('taking '.$url);
-        $data = $this->browshot->simple([
-            'url' => $url,
-            'instance_id' => 12,
-            'cache' => 1,
-        ]);
+        $response = $this->client->createScreenshot($url);
 
-        $this->logger->debug('result '.$data['code']);
+        if ($response instanceof ScreenshotErrorResponse) {
+            $this->logger->warning('fail to get screenshot', $response->toArray());
+            $this->logger->debug('end');
+            return false;
+        }
 
-        if (200 === $data['code']) {
-            $storeObj = $this->createStoreObject($data);
-            $this->logger->debug('store', ['path' => $storeObj->path]);
-            foreach ($this->screenshotStorageList as $screenshotStorage) {
-                try {
-                    $screenshotStorage->store($storeObj);
-                } catch (\Exception $ex) {
-                    $this->logger->warning($ex->getMessage());
-                }
+        $key = time().'_'.md5(random_bytes(8));
+
+        $this->logger->debug('storing', ['key' => $key]);
+
+        foreach ($this->screenshotStorageList as $screenshotStorage) {
+            try {
+                $screenshotStorage->store($key, $response);
+            } catch (\Exception $ex) {
+                $this->logger->warning($ex->getMessage());
             }
-        } else {
-            $this->logger->error('Failed to get screenshot');
         }
 
         $this->logger->debug('end');
-    }
-
-    /**
-     * @param array $data
-     * @return \stdClass
-     */
-    private function createStoreObject(array $data)
-    {
-        $obj = new \stdClass();
-
-        $obj->path = time().'_'.uniqid().'.png';
-        $obj->image = $data['image'];
-
-        return $obj;
     }
 
     public function getLatest()

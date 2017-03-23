@@ -31,19 +31,24 @@ class DoctrineStorage implements StorageInterface
         $this->uuidFactory = $uuidFactory;
     }
 
+    public function getName()
+    {
+        return 'db';
+    }
+
     /**
      * Handle screenshot storing
      *
-     * @param \stdClass $data
+     * @param array $data
      * @return bool
      */
-    public function store(\stdClass $data)
+    public function store(...$data)
     {
         $now = Carbon::now()->toDateTimeString();
 
         $result = $this->conn->insert('screenshot', [
             'screenshot_id' => $this->uuidFactory->uuid4()->toString(),
-            'path'          => $data->path,
+            'path'          => $data[0],
             'shooted_at'    => $now,
             'created_at'    => $now,
         ]);

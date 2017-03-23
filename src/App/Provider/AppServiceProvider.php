@@ -4,6 +4,8 @@ namespace App\Provider;
 
 use App\Http\IndexController;
 use App\Model\Screenshot;
+use App\Service\Browshot\ApiClient;
+use App\Service\Browshot\Configuration;
 use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
@@ -36,6 +38,20 @@ class AppServiceProvider implements ServiceProviderInterface
             return $browshot;
         };
 
+        $pimple['browshot.configuration'] = function (Container $c) {
+            $config = Configuration::getDefaultConfiguration();
+            $config->setApiKey($c['config']['browshot.api_key']);
+            $config->setInstanceId($c['config']['browshot.instance_id']);
+
+            return $config;
+        };
+
+        $pimple['browshot.api_client'] = function (Container $c) {
+            $apiClient = new ApiClient($c['browshot.configuration']);
+
+            return $apiClient;
+        };
+
         $pimple['screenshot.file_storage'] = function (Container $c) {
             $storage = new FileStorage($c['config']['screenshot_dir']);
 
@@ -49,10 +65,10 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot'] = function (Container $c) {
-            $service = new ScreenshotService($c['browshot'], $c['logger'], $c['db']);
+            $service = new ScreenshotService($c['browshot.api_client'], $c['logger'], $c['db']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
-            $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
+//            $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
 
             return $service;
         };

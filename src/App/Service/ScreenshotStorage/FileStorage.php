@@ -2,6 +2,11 @@
 
 namespace App\Service\ScreenshotStorage;
 
+use App\Service\Browshot\Response\ScreenshotResponse;
+use App\Service\Browshot\Response\ScreenshotSuccessResponse;
+use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
+
 class FileStorage implements StorageInterface
 {
     /**
@@ -18,15 +23,29 @@ class FileStorage implements StorageInterface
         $this->dir = $dir;
     }
 
+    public function getName()
+    {
+        return 'file';
+    }
+
     /**
-     * @param \stdClass $data
+     * @param string $key
+     * @param \App\Service\Browshot\Response\ScreenshotResponse $response
      * @return bool
      */
-    public function store(\stdClass $data)
+    public function store(string $key, ScreenshotResponse $response): bool
     {
-        $filename = $this->dir . '/' . $data->path;
-        $result = file_put_contents($filename, $data->image);
+        if (ScreenshotSuccessResponse::STATUS_FINISHED !== $response->status()) {
+            return false;
+        }
 
-        return $result > 0;
+        $path = $this->dir.'/'.$key;
+
+        $client = new Client();
+        $client->get($response->get('screenshot_url'), [
+            'sink' => $path,
+        ]);
+
+        return true;
     }
 }
