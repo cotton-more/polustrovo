@@ -68,7 +68,7 @@ class AppServiceProvider implements ServiceProviderInterface
             $service = new ScreenshotService($c['browshot.api_client'], $c['logger'], $c['db']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
-//            $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
+            $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
 
             return $service;
         };

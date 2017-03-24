@@ -6,9 +6,8 @@ use App\Screenshot;
 use App\ScreenshotsDaily;
 use App\ScreenshotStack;
 use App\Service\Browshot\ApiClient;
-use App\Service\Browshot\Model\ScreenshotSimple;
 use App\Service\Browshot\Response\ScreenshotErrorResponse;
-use App\Service\Browshot\ScreenshotException;
+use App\Service\Browshot\Response\ScreenshotSuccessResponse;
 use App\Service\ScreenshotStorage\StorageInterface;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
@@ -91,10 +90,10 @@ class ScreenshotService
 
     public function getLatest()
     {
-        $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
+        $sql = 'SELECT * FROM screenshot WHERE status = ? ORDER BY created_at DESC LIMIT 1';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql);
+        $stmt = $this->db->executeQuery($sql, [ScreenshotSuccessResponse::STATUS_FINISHED]);
 
         $image = $stmt->fetchObject(Screenshot::class);
 

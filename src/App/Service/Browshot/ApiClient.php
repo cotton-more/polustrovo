@@ -36,22 +36,19 @@ class ApiClient
 
     /**
      * @param string $url
-     * @param int|null $cache
+     * @param array|null $query
      * @return ScreenshotResponse
      */
-    public function createScreenshot(string $url, int $cache = null): ScreenshotResponse
+    public function createScreenshot(string $url, array $query = null): ScreenshotResponse
     {
         $uri = uri_for('screenshot/create');
 
-        $query = [
+        $query['url'] = $url;
+        $query += [
             'instance_id' => $this->configuration->getInstanceId(),
-            'key' => $this->configuration->getApiKey(),
-            'url' => $url,
+            'key'         => $this->configuration->getApiKey(),
+            'cache'       => 0,
         ];
-
-        if (null !== $cache) {
-            $query['cache'] = $cache;
-        }
 
         $result = $this->callApi('GET', $uri, [
             'query' => $query,

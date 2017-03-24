@@ -39,13 +39,24 @@ class FileStorage implements StorageInterface
             return false;
         }
 
+        $result = false;
+
         $path = $this->dir.'/'.$key;
 
         $client = new Client();
-        $client->get($response->get('screenshot_url'), [
-            'sink' => $path,
-        ]);
+        $promise = $client->getAsync($response->get('screenshot_url'));
+        $promise->then(function (ResponseInterface $res) use ($path, $result) {
+            if (200 === $res->getStatusCode()) {
+                $content = $res->getBody()->getContents();
+                if (file_put_contents($path, $content)) {
+                    $result = true;
+                }
+            }
 
-        return true;
+            return $result;
+        });
+        $promise->wait();
+
+        return $result;
     }
 }

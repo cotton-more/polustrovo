@@ -9,6 +9,7 @@
 namespace App\Service\ScreenshotStorage;
 
 
+use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\UuidFactoryInterface;
@@ -39,16 +40,19 @@ class DoctrineStorage implements StorageInterface
     /**
      * Handle screenshot storing
      *
-     * @param array $data
+     * @param string $key
+     * @param ScreenshotResponse $screenshotResponse
      * @return bool
      */
-    public function store(...$data)
+    public function store(string $key, ScreenshotResponse $screenshotResponse): bool
     {
         $now = Carbon::now()->toDateTimeString();
 
         $result = $this->conn->insert('screenshot', [
             'screenshot_id' => $this->uuidFactory->uuid4()->toString(),
-            'path'          => $data[0],
+            'path'          => $key,
+            'status'        => $screenshotResponse->status(),
+            'browshot_id'   => $screenshotResponse->get('id'),
             'shooted_at'    => $now,
             'created_at'    => $now,
         ]);
