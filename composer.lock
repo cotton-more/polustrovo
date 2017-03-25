@@ -4,47 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "60439b9409248eed3491827d2613f36a",
+    "content-hash": "414adad93a654e46acd21b3749c6a829",
     "packages": [
-        {
-            "name": "browshot-php/browshot",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/juliensobrier/browshot-php.git",
-                "reference": "f31ec203dcea962a6155f23e277d386cbde213e6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/juliensobrier/browshot-php/zipball/f31ec203dcea962a6155f23e277d386cbde213e6",
-                "reference": "f31ec203dcea962a6155f23e277d386cbde213e6",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.1.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Browshot": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Julien Sobrier",
-                    "email": "julien@sobrier.net",
-                    "homepage": "https://browshot.com/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "PHP library for Browshot API: take screenshots of any web page",
-            "homepage": "https://github.com/juliensobrier/browshot-php",
-            "time": "2016-07-28 03:46:05"
-        },
         {
             "name": "container-interop/container-interop",
             "version": "1.2.0",
@@ -3076,9 +3037,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "browshot-php/browshot": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

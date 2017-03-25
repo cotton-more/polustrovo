@@ -26,7 +26,6 @@
         "symfony/process"          : "^2.7 || ^3.0",
         "symfony/console"          : "^2.7 || ^3.0",
         "symfony/event-dispatcher" : "^2.7 || ^3.0",
-        "browshot-php/browshot": "dev-master",
         "vlucas/phpdotenv": "^2.4",
         "illuminate/config": "^5.4",
         "symfony/var-dumper": "^3.2",

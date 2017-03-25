@@ -30,14 +30,6 @@ class AppServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
-        $pimple['browshot'] = function (Container $c) {
-            $browshot = new \Browshot(
-                $c['config']['browshot_key'], 0, 'https://browshot.com/api/v1/'
-            );
-
-            return $browshot;
-        };
-
         $pimple['browshot.configuration'] = function (Container $c) {
             $config = Configuration::getDefaultConfiguration();
             $config->setApiKey($c['config']['browshot.api_key']);
