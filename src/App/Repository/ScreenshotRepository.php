@@ -40,10 +40,10 @@ class ScreenshotRepository
     public function getCurrentWeek()
     {
         $monday = Carbon::today()->startOfWeek();
-        $sql = 'SELECT * FROM screenshot WHERE created_at >= ? ORDER BY created_at ASC';
+        $sql = 'SELECT * FROM screenshot WHERE status = ? AND created_at >= ? ORDER BY created_at ASC';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [$monday]);
+        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED, $monday]);
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
 
@@ -71,13 +71,13 @@ SQL;
 
     public function getForDate($date)
     {
-        $sql = 'SELECT * FROM screenshot WHERE created_at >= ? AND created_at < ? ORDER BY created_at ASC';
+        $sql = 'SELECT * FROM screenshot WHERE status = ? AND created_at >= ? AND created_at < ? ORDER BY created_at ASC';
 
         $start = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
         $end = $start->copy()->addDay();
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [$start, $end]);
+        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED, $start, $end]);
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
 
