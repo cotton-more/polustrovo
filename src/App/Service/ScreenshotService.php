@@ -2,14 +2,10 @@
 
 namespace App\Service;
 
-use App\Screenshot;
-use App\ScreenshotsDaily;
+use App\Repository\ScreenshotRepository;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\ScreenshotStorage\StorageInterface;
-use Carbon\Carbon;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOStatement;
 use Projek\Slim\Monolog;
 
 class ScreenshotService
@@ -25,9 +21,9 @@ class ScreenshotService
     private $logger;
 
     /**
-     * @var Connection
+     * @var ScreenshotRepository
      */
-    private $db;
+    private $repository;
 
     /**
      * @var StorageInterface[]
@@ -38,13 +34,16 @@ class ScreenshotService
      * ScreenshotService constructor.
      * @param ApiClient $client
      * @param Monolog $logger
-     * @param Connection $db
+     * @param ScreenshotRepository $repository
      */
-    public function __construct(ApiClient $client, Monolog $logger, Connection $db)
-    {
+    public function __construct(
+        ApiClient $client,
+        Monolog $logger,
+        ScreenshotRepository $repository
+    ) {
         $this->client = $client;
         $this->logger = $logger;
-        $this->db = $db;
+        $this->repository = $repository;
     }
 
     /**
@@ -98,17 +97,7 @@ class ScreenshotService
 
     public function download()
     {
-        $sql = <<<SQL
-SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at ASC;
-SQL;
-        /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [
-            ScreenshotResponse::STATUS_FINISHED,
-            ScreenshotResponse::STATUS_ERROR,
-        ]);
-
-        /** @var Screenshot $screenshot */
-        $screenshot = $stmt->fetchObject(Screenshot::class);
+        $screenshot = $this->repository->getQueued();
 
         $id = $screenshot->attr('browshot_id');
         $this->logger->debug('download screenshot', [
@@ -131,7 +120,7 @@ SQL;
 
         $this->store($response);
 
-        $this->db->delete('screenshot', [
+        $this->repository->deleteBy([
             'screenshot_id' => $screenshot->id(),
         ]);
 

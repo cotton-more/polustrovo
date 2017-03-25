@@ -83,4 +83,30 @@ SQL;
 
         return $result;
     }
+
+    public function getQueued()
+    {
+        $sql = <<<SQL
+SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at ASC;
+SQL;
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql, [
+            ScreenshotResponse::STATUS_FINISHED,
+            ScreenshotResponse::STATUS_ERROR,
+        ]);
+
+        /** @var Screenshot $screenshot */
+        $screenshot = $stmt->fetchObject(Screenshot::class);
+
+        return $screenshot;
+    }
+
+    /**
+     * @param array $identifier
+     * @return int
+     */
+    public function deleteBy(array $identifier)
+    {
+        return $this->db->delete('screenshot', $identifier);
+    }
 }
