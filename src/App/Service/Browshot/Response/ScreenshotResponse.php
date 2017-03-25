@@ -2,19 +2,43 @@
 
 namespace App\Service\Browshot\Response;
 
+use Carbon\Carbon;
+
 class ScreenshotResponse
 {
+    const STATUS_IN_QUEUE   = 'in_queue';
+    const STATUS_PROCESSING = 'processing';
+    const STATUS_FINISHED   = 'finished';
+    const STATUS_ERROR      = 'error';
+
     /**
      * @var mixed[]
      */
     private $container;
 
     /**
-     * @param array $data
+     * @var integer
      */
-    protected function __construct(array $data)
+    private $code;
+
+    /**
+     * @param array $data
+     * @param int $code
+     */
+    private function __construct(array $data, int $code)
     {
         $this->container = $data;
+        $this->code = $code;
+    }
+
+    /**
+     * @param  mixed[] $data
+     * @param  int $code
+     * @return ScreenshotResponse
+     */
+    public static function fromArray(array $data, int $code): ScreenshotResponse
+    {
+        return new static($data, $code);
     }
 
     /**
@@ -25,22 +49,16 @@ class ScreenshotResponse
         return $this->container;
     }
 
-    public static function createSuccess(array $data): ScreenshotSuccessResponse
-    {
-        return ScreenshotSuccessResponse::fromArray($data);
-    }
-
-    public static function createError(array $data): ScreenshotErrorResponse
-    {
-        return ScreenshotErrorResponse::fromArray($data);
-    }
-
     /**
-     * @return mixed|null
+     * @return Carbon|null
      */
-    public function status()
+    public function finished()
     {
-        return $this->container['status'] ?? null;
+        if ($finished = $this->get('finished')) {
+            $finished = Carbon::createFromTimestamp($finished / 1000);
+        }
+
+        return $finished;
     }
 
     /**
@@ -50,5 +68,16 @@ class ScreenshotResponse
     public function get($key)
     {
         return $this->container[$key] ?? null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuccess()
+    {
+        $isOk = (self::STATUS_ERROR !== $this->get('status'));
+        $error = $this->get('error');
+
+        return $isOk && !$error;
     }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Service\ScreenshotStorage;
 
-use App\Service\Browshot\Response\ScreenshotSuccessResponse;
+use App\Service\Browshot\Response\ScreenshotResponse;
 
 interface StorageInterface
 {
     /**
      * Handle screenshot storing
      * @param string $key
-     * @param ScreenshotSuccessResponse $response
+     * @param ScreenshotResponse $response
      * @return bool
      */
-    public function store(string $key, ScreenshotSuccessResponse $response): bool;
+    public function store(string $key, ScreenshotResponse $response): bool;
 }

@@ -7,6 +7,7 @@ use App\ScreenshotsDaily;
 use App\ScreenshotStack;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Response\ScreenshotErrorResponse;
+use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\Browshot\Response\ScreenshotSuccessResponse;
 use App\Service\Browshot\ScreenshotException;
 use App\Service\ScreenshotStorage\StorageInterface;
@@ -66,16 +67,12 @@ class ScreenshotService
     {
         $this->logger->debug('start', ['url' => $url]);
 
-        /** @var ScreenshotSuccessResponse $response */
+        /** @var ScreenshotResponse $response */
         $response = $this->client->createScreenshot($url);
 
-        if ($response instanceof ScreenshotErrorResponse) {
+        if (!$response->isSuccess()) {
             $this->logger->warning('fail to get screenshot', $response->toArray());
             $this->logger->debug('end');
-
-            // todo: update screenshot to store an error message
-
-            return false;
         }
 
         $this->store($response);
@@ -86,11 +83,11 @@ class ScreenshotService
     }
 
     /**
-     * @param ScreenshotSuccessResponse $response
+     * @param ScreenshotResponse $response
      */
-    public function store(ScreenshotSuccessResponse $response)
+    public function store(ScreenshotResponse $response)
     {
-        $key = time().'_'.$response->id();
+        $key = time().'_'.$response->get('id');
 
         $this->logger->debug('storing', ['key' => $key]);
 
@@ -110,8 +107,8 @@ SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at AS
 SQL;
         /** @var PDOStatement $stmt */
         $stmt = $this->db->executeQuery($sql, [
-            ScreenshotSuccessResponse::STATUS_FINISHED,
-            ScreenshotSuccessResponse::STATUS_ERROR,
+            ScreenshotResponse::STATUS_FINISHED,
+            ScreenshotResponse::STATUS_ERROR,
         ]);
 
         /** @var Screenshot $screenshot */
@@ -124,14 +121,14 @@ SQL;
 
         $response = $this->client->screenshotInfo($id);
 
-        if ($response instanceof ScreenshotErrorResponse) {
+        if (!$response->isSuccess()) {
             $this->logger->error($response->get('error'), $response->toArray());
             return false;
         }
 
-        if (ScreenshotSuccessResponse::STATUS_FINISHED !== $response->status()) {
+        if (ScreenshotResponse::STATUS_FINISHED !== $response->get('status')) {
             $this->logger->debug('screenshot not ready', [
-                'status' => $response->status(),
+                'status' => $response->get('status'),
             ]);
             return false;
         }
@@ -150,7 +147,7 @@ SQL;
         $sql = 'SELECT * FROM screenshot WHERE status = ? ORDER BY created_at DESC LIMIT 1';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [ScreenshotSuccessResponse::STATUS_FINISHED]);
+        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED]);
 
         $image = $stmt->fetchObject(Screenshot::class);
 

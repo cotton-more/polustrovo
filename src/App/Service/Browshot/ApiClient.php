@@ -2,15 +2,9 @@
 
 namespace App\Service\Browshot;
 
-use App\Service\Browshot\Model\ScreenshotSimple;
-use App\Service\Browshot\Response\ScreenshotErrorResponse;
 use App\Service\Browshot\Response\ScreenshotResponse;
-use App\Service\Browshot\Response\ScreenshotSuccessResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Response;
 use function GuzzleHttp\Psr7\uri_for;
 use Psr\Http\Message\UriInterface;
 
@@ -55,18 +49,14 @@ class ApiClient
             'query' => $query,
         ]);
 
-        if (200 === $result['code']) {
-            $screenshotResponse = ScreenshotResponse::createSuccess($result['data']);
-        } else {
-            $screenshotResponse = ScreenshotResponse::createError($result['data']);
-        }
+        $screenshotResponse = ScreenshotResponse::fromArray($result['data'], $result['code']);
 
         return $screenshotResponse;
     }
 
     /**
      * @param string $id
-     * @return ScreenshotErrorResponse|ScreenshotSuccessResponse
+     * @return ScreenshotResponse
      */
     public function screenshotInfo(string $id)
     {
@@ -84,11 +74,7 @@ class ApiClient
             'query' => $query,
         ]);
 
-        if (200 === $result['code']) {
-            $screenshotResponse = ScreenshotResponse::createSuccess($result['data']);
-        } else {
-            $screenshotResponse = ScreenshotResponse::createError($result['data']);
-        }
+        $screenshotResponse = ScreenshotResponse::fromArray($result['data'], $result['code']);
 
         return $screenshotResponse;
     }
