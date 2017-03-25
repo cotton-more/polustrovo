@@ -7,6 +7,7 @@ use App\Service\Browshot\Response\ScreenshotErrorResponse;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\Browshot\Response\ScreenshotSuccessResponse;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
@@ -55,9 +56,38 @@ class ApiClient
         ]);
 
         if (200 === $result['code']) {
-            $screenshotResponse = ScreenshotSuccessResponse::fromArray($result['data']);
+            $screenshotResponse = ScreenshotResponse::createSuccess($result['data']);
         } else {
-            $screenshotResponse = ScreenshotErrorResponse::fromArray($result['data']);
+            $screenshotResponse = ScreenshotResponse::createError($result['data']);
+        }
+
+        return $screenshotResponse;
+    }
+
+    /**
+     * @param string $id
+     * @return ScreenshotErrorResponse|ScreenshotSuccessResponse
+     */
+    public function screenshotInfo(string $id)
+    {
+        $uri = uri_for('screenshot/info');
+
+        $query = [
+            'id' => $id,
+        ];
+        $query += [
+            'key'     => $this->configuration->getApiKey(),
+            'details' => 2,
+        ];
+
+        $result = $this->callApi('GET', $uri, [
+            'query' => $query,
+        ]);
+
+        if (200 === $result['code']) {
+            $screenshotResponse = ScreenshotResponse::createSuccess($result['data']);
+        } else {
+            $screenshotResponse = ScreenshotResponse::createError($result['data']);
         }
 
         return $screenshotResponse;
@@ -78,15 +108,16 @@ class ApiClient
             $statusCode = $response->getStatusCode();
 
             $body = $response->getBody()->getContents();
+        } catch (ClientException $ex) {
+            $response = $ex->getResponse();
 
-            return [
-                'code' => $statusCode,
-                'data' => \GuzzleHttp\json_decode($body, true),
-            ];
-        } catch (GuzzleException $ex) {
-            $errorMessage = $ex->getMessage();
+            $statusCode = $response->getStatusCode();
+            $body = $response->getBody()->getContents();
         }
 
-        throw new ScreenshotException($errorMessage);
+        return [
+            'code' => $statusCode,
+            'data' => \GuzzleHttp\json_decode($body, true),
+        ];
     }
 }

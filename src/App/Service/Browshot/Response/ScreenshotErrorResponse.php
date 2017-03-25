@@ -9,7 +9,7 @@
 namespace App\Service\Browshot\Response;
 
 
-class ScreenshotErrorResponse
+class ScreenshotErrorResponse extends ScreenshotResponse
 {
     public static function fromArray($data)
     {

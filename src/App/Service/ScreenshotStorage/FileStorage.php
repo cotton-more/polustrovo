@@ -2,7 +2,6 @@
 
 namespace App\Service\ScreenshotStorage;
 
-use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\Browshot\Response\ScreenshotSuccessResponse;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
@@ -30,10 +29,10 @@ class FileStorage implements StorageInterface
 
     /**
      * @param string $key
-     * @param \App\Service\Browshot\Response\ScreenshotResponse $response
+     * @param \App\Service\Browshot\Response\ScreenshotSuccessResponse $response
      * @return bool
      */
-    public function store(string $key, ScreenshotResponse $response): bool
+    public function store(string $key, ScreenshotSuccessResponse $response): bool
     {
         if (ScreenshotSuccessResponse::STATUS_FINISHED !== $response->status()) {
             return false;

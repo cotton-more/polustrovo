@@ -17,4 +17,12 @@ class ScreenshotSuccessResponse extends ScreenshotResponse
     {
         return new static($data);
     }
+
+    /**
+     * @return string
+     */
+    public function id(): string
+    {
+        return $this->get('id');
+    }
 }

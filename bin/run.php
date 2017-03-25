@@ -12,5 +12,6 @@ $app = new \Cilex\Application('Polustrovo Screenshot', '0.1', $settings);
 $kernel = new AppKernel($app);
 
 $app->command(new Cilex\Command\TakeScreenshot());
+$app->command(new Cilex\Command\DownloadScreenshot());
 
 $app->run();
