@@ -4,6 +4,10 @@ return [
     'url'            => getenv('URL'),
     'browshot_key'   => getenv('BROWSHOT_KEY'),
     'screenshot_dir' => realpath(__DIR__.'/../screenshots'),
+    'browshot' => [
+        'api_key'     => getenv('BROWSHOT_KEY'),
+        'instance_id' => getenv('BROWSHOT_INSTANCE'),
+    ],
 
     'root.dir' => realpath(__DIR__.'/..'),
     'cache_dir' => realpath(__DIR__.'/../var/cache'),

@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: inikulin
- * Date: 14.03.17
- * Time: 22:09
- */
 
 namespace App\Service\ScreenshotStorage;
 
-
+use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
 use Ramsey\Uuid\UuidFactoryInterface;
@@ -31,22 +25,39 @@ class DoctrineStorage implements StorageInterface
         $this->uuidFactory = $uuidFactory;
     }
 
+    public function getName()
+    {
+        return 'db';
+    }
+
     /**
      * Handle screenshot storing
      *
-     * @param \stdClass $data
+     * @param string $key
+     * @param ScreenshotResponse $screenshotResponse
      * @return bool
      */
-    public function store(\stdClass $data)
+    public function store(string $key, ScreenshotResponse $screenshotResponse): bool
     {
-        $now = Carbon::now()->toDateTimeString();
+        $now = Carbon::now();
 
-        $result = $this->conn->insert('screenshot', [
+        $data = [
             'screenshot_id' => $this->uuidFactory->uuid4()->toString(),
-            'path'          => $data->path,
-            'shooted_at'    => $now,
-            'created_at'    => $now,
-        ]);
+            'status'        => $screenshotResponse->get('status'),
+            'browshot_id'   => $screenshotResponse->get('id'),
+            'created_at'    => $now->toDateTimeString(),
+        ];
+
+        // add shooted time and path to a file
+        if (ScreenshotResponse::STATUS_FINISHED === $screenshotResponse->get('status')) {
+            $finishedAt = floor($screenshotResponse->get('finished') / 1000);
+            $shootedAt = Carbon::createFromTimestamp($finishedAt);
+            $data['shooted_at'] = $shootedAt->toDateTimeString();
+
+            $data['path'] = $key;
+        }
+
+        $result = $this->conn->insert('screenshot', $data);
 
         return $result > 0;
     }

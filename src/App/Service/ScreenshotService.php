@@ -5,6 +5,11 @@ namespace App\Service;
 use App\Screenshot;
 use App\ScreenshotsDaily;
 use App\ScreenshotStack;
+use App\Service\Browshot\ApiClient;
+use App\Service\Browshot\Response\ScreenshotErrorResponse;
+use App\Service\Browshot\Response\ScreenshotResponse;
+use App\Service\Browshot\Response\ScreenshotSuccessResponse;
+use App\Service\Browshot\ScreenshotException;
 use App\Service\ScreenshotStorage\StorageInterface;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
@@ -14,9 +19,9 @@ use Projek\Slim\Monolog;
 class ScreenshotService
 {
     /**
-     * @var \Browshot
+     * @var ApiClient
      */
-    private $browshot;
+    private $client;
 
     /**
      * @var Monolog
@@ -35,14 +40,13 @@ class ScreenshotService
 
     /**
      * ScreenshotService constructor.
-     * @param \Browshot $browshot
+     * @param ApiClient $client
      * @param Monolog $logger
      * @param Connection $db
-     * @internal param string $url
      */
-    public function __construct(\Browshot $browshot, Monolog $logger, Connection $db)
+    public function __construct(ApiClient $client, Monolog $logger, Connection $db)
     {
-        $this->browshot = $browshot;
+        $this->client = $client;
         $this->logger = $logger;
         $this->db = $db;
     }
@@ -57,57 +61,93 @@ class ScreenshotService
 
     /**
      * @param string $url
-     * @return void
+     * @return bool
      */
     public function take($url)
     {
+        $this->logger->debug('start', ['url' => $url]);
 
-        $this->logger->debug('taking '.$url);
-        $data = $this->browshot->simple([
-            'url' => $url,
-            'instance_id' => 12,
-            'cache' => 1,
-        ]);
+        /** @var ScreenshotResponse $response */
+        $response = $this->client->createScreenshot($url);
 
-        $this->logger->debug('result '.$data['code']);
-
-        if (200 === $data['code']) {
-            $storeObj = $this->createStoreObject($data);
-            $this->logger->debug('store', ['path' => $storeObj->path]);
-            foreach ($this->screenshotStorageList as $screenshotStorage) {
-                try {
-                    $screenshotStorage->store($storeObj);
-                } catch (\Exception $ex) {
-                    $this->logger->warning($ex->getMessage());
-                }
-            }
-        } else {
-            $this->logger->error('Failed to get screenshot');
+        if (!$response->isSuccess()) {
+            $this->logger->warning('fail to get screenshot', $response->toArray());
+            $this->logger->debug('end');
         }
 
+        $this->store($response);
+
         $this->logger->debug('end');
+
+        return true;
     }
 
     /**
-     * @param array $data
-     * @return \stdClass
+     * @param ScreenshotResponse $response
      */
-    private function createStoreObject(array $data)
+    public function store(ScreenshotResponse $response)
     {
-        $obj = new \stdClass();
+        $key = time().'_'.$response->get('id');
 
-        $obj->path = time().'_'.uniqid().'.png';
-        $obj->image = $data['image'];
+        $this->logger->debug('storing', ['key' => $key]);
 
-        return $obj;
+        foreach ($this->screenshotStorageList as $screenshotStorage) {
+            try {
+                $screenshotStorage->store($key, $response);
+            } catch (\Exception $ex) {
+                $this->logger->warning($ex->getMessage());
+            }
+        }
+    }
+
+    public function download()
+    {
+        $sql = <<<SQL
+SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at ASC;
+SQL;
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql, [
+            ScreenshotResponse::STATUS_FINISHED,
+            ScreenshotResponse::STATUS_ERROR,
+        ]);
+
+        /** @var Screenshot $screenshot */
+        $screenshot = $stmt->fetchObject(Screenshot::class);
+
+        $id = $screenshot->attr('browshot_id');
+        $this->logger->debug('download screenshot', [
+            'id' => $id,
+        ]);
+
+        $response = $this->client->screenshotInfo($id);
+
+        if (!$response->isSuccess()) {
+            $this->logger->error($response->get('error'), $response->toArray());
+            return false;
+        }
+
+        if (ScreenshotResponse::STATUS_FINISHED !== $response->get('status')) {
+            $this->logger->debug('screenshot not ready', [
+                'status' => $response->get('status'),
+            ]);
+            return false;
+        }
+
+        $this->store($response);
+
+        $this->db->delete('screenshot', [
+            'screenshot_id' => $screenshot->id(),
+        ]);
+
+        return true;
     }
 
     public function getLatest()
     {
-        $sql = 'SELECT * FROM screenshot ORDER BY created_at DESC LIMIT 1';
+        $sql = 'SELECT * FROM screenshot WHERE status = ? ORDER BY created_at DESC LIMIT 1';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql);
+        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED]);
 
         $image = $stmt->fetchObject(Screenshot::class);
 
