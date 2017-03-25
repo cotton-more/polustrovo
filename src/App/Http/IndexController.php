@@ -2,8 +2,7 @@
 
 namespace App\Http;
 
-use App\Service\ScreenshotService;
-use Slim\Container;
+use App\Repository\ScreenshotRepository;
 use Slim\Views\Twig;
 
 class IndexController
@@ -14,19 +13,19 @@ class IndexController
     private $view;
 
     /**
-     * @var ScreenshotService
+     * @var ScreenshotRepository
      */
-    private $screenshotService;
+    private $screenshotRepository;
 
-    public function __construct(Container $container)
+    public function __construct(Twig $view, ScreenshotRepository $repository)
     {
-        $this->view = $container->get('view');
-        $this->screenshotService = $container->get('screenshot');
+        $this->view = $view;
+        $this->screenshotRepository = $repository;
     }
 
     public function index($req, $resp)
     {
-        $image = $this->screenshotService->getLatest();
+        $image = $this->screenshotRepository->getLatest();
 
         return $this->view->render($resp, 'index.twig', [
             'image' => $image,

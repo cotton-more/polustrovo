@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Repository\ScreenshotRepository;
 use App\Service\ScreenshotService;
 use Slim\Container;
 use Slim\Views\Twig;
@@ -14,14 +15,14 @@ class ScreenshotController
     private $view;
 
     /**
-     * @var ScreenshotService
+     * @var ScreenshotRepository
      */
-    private $screenshotService;
+    private $repository;
 
-    public function __construct(Twig $view, ScreenshotService $screenshotService)
+    public function __construct(Twig $view, ScreenshotRepository $repository)
     {
         $this->view = $view;
-        $this->screenshotService = $screenshotService;
+        $this->repository = $repository;
     }
 
     /**
@@ -31,21 +32,21 @@ class ScreenshotController
      */
     public function currentWeekAction($req, $resp)
     {
-        $images = $this->screenshotService->getCurrentWeek();
+        $images = $this->repository->getCurrentWeek();
 
         return $this->view->render($resp, 'screenshot/images.twig', compact('images'));
     }
 
     public function calendarAction($req, $resp)
     {
-        $calendar = $this->screenshotService->getDaily();
+        $calendar = $this->repository->getDaily();
 
         return $this->view->render($resp, 'screenshot/calendar_daily.twig', compact('calendar'));
     }
 
     public function dateAction($req, $resp, $args)
     {
-        $images = $this->screenshotService->getForDate($args['date']);
+        $images = $this->repository->getForDate($args['date']);
 
         return $this->view->render($resp, 'screenshot/images.twig', compact('images'));
     }

@@ -4,6 +4,7 @@ namespace App\Provider;
 
 use App\Http\IndexController;
 use App\Model\Screenshot;
+use App\Repository\ScreenshotRepository;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Configuration;
 use App\Service\GlideScreenshotService;
@@ -30,6 +31,12 @@ class AppServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
+        $pimple['screenshot.repository'] = function (Container $c) {
+            $repository = new ScreenshotRepository($c['db']);
+
+            return $repository;
+        };
+
         $pimple['browshot.configuration'] = function (Container $c) {
             $config = Configuration::getDefaultConfiguration();
             $config->setApiKey($c['config']['browshot.api_key']);

@@ -20,13 +20,13 @@ class RouteServiceProvider implements ServiceProviderInterface
     public function register(Container $pimple)
     {
         $pimple['index_controller'] = function (Container $c) {
-            $controller = new IndexController($c);
+            $controller = new IndexController($c['view'], $c['screenshot.repository']);
 
             return $controller;
         };
 
         $pimple['screenshot_controller'] = function (Container $c) {
-            $controller = new ScreenshotController($c['view'], $c['screenshot']);
+            $controller = new ScreenshotController($c['view'], $c['screenshot.repository']);
 
             return $controller;
         };
