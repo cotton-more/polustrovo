@@ -9,6 +9,11 @@ return [
         'instance_id' => getenv('BROWSHOT_INSTANCE'),
     ],
 
+    'telegram' => [
+        'token' => getenv('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => getenv('TELEGRAM_CHAT_ID'),
+    ],
+
     'root.dir' => realpath(__DIR__.'/..'),
     'cache_dir' => realpath(__DIR__.'/../var/cache'),
 

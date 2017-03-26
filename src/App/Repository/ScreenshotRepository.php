@@ -109,4 +109,20 @@ SQL;
     {
         return $this->db->delete('screenshot', $identifier);
     }
+
+    public function findByBrowshotId(string $browshotId)
+    {
+        $sql = <<<SQL
+SELECT s.* FROM screenshot s WHERE s.browshot_id = ?;
+SQL;
+        /** @var PDOStatement $stmt */
+        $stmt = $this->db->executeQuery($sql, [
+            $browshotId,
+        ]);
+
+        /** @var Screenshot $screenshot */
+        $screenshot = $stmt->fetchObject(Screenshot::class);
+
+        return $screenshot;
+    }
 }

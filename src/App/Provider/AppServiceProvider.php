@@ -11,6 +11,7 @@ use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
 use App\Service\ScreenshotStorage\FileStorage;
+use App\Service\ScreenshotStorage\TelegramStorage;
 use League\Glide\Responses\SlimResponseFactory;
 use League\Glide\ServerFactory as GlideServerFactory;
 use Pimple\Container;
@@ -63,11 +64,18 @@ class AppServiceProvider implements ServiceProviderInterface
             return $storage;
         };
 
+        $pimple['screenshot.telegram_storage'] = function (Container $c) {
+            $storage = new TelegramStorage($c['telegram'], $c['screenshot.repository']);
+
+            return $storage;
+        };
+
         $pimple['screenshot'] = function (Container $c) {
             $service = new ScreenshotService($c['browshot.api_client'], $c['logger'], $c['screenshot.repository']);
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
+            $service->addScreenshotStorage($c['screenshot.telegram_storage']);
 
             return $service;
         };

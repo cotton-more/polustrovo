@@ -99,6 +99,11 @@ class ScreenshotService
     {
         $screenshot = $this->repository->getQueued();
 
+        if (false === $screenshot) {
+            $this->logger->debug('no queued screenshots');
+            return false;
+        }
+
         $id = $screenshot->attr('browshot_id');
         $this->logger->debug('download screenshot', [
             'id' => $id,

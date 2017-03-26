@@ -20,3 +20,9 @@ $app->group('/screenshot', function () {
     $this->get('/calendar/{date}', 'screenshot_controller:dateAction')
         ->setName('screenshot_date');
 });
+
+$app->get('/telegram', function () {
+    $bot = $this->get('telegram_bot.bot_api');
+
+    dump($bot);
+});

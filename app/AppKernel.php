@@ -30,6 +30,7 @@ class AppKernel
             new App\Provider\DbServiceProvider(),
             new App\Provider\AppServiceProvider(),
             new App\Provider\RouteServiceProvider(),
+            new \App\Provider\TelegramBotServiceProvider(),
         ];
     }
 
