@@ -6,6 +6,7 @@ use Cilex\Provider\Console\Command;
 use App\Service\ScreenshotService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class TakeScreenshot extends Command
@@ -13,7 +14,9 @@ class TakeScreenshot extends Command
     protected function configure()
     {
         $this->setName('take:screenshot');
+        $this->setDescription('Take a screenshot');
         $this->addArgument('url', InputArgument::OPTIONAL, 'A url to take a screenshot');
+        $this->addOption('cache', 'c', InputOption::VALUE_OPTIONAL, 'Use cache (in seconds)');
     }
 
     /**
@@ -31,6 +34,8 @@ class TakeScreenshot extends Command
             $url = $this->getContainer()->get('config')->get('url');
         }
 
-        $screenshotService->take($url);
+        $cache = $input->getOption('cache');
+
+        $screenshotService->take($url, $cache);
     }
 }

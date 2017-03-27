@@ -58,15 +58,27 @@ class ScreenshotService
 
     /**
      * @param string $url
+     * @param int $cache
      * @return bool
      */
-    public function take($url)
+    public function take($url, int $cache = null)
     {
-        $this->logger->debug('start', ['url' => $url]);
+        $cache = filter_var(
+            $cache,
+            FILTER_VALIDATE_INT,
+            [
+                'options' => [
+                    'default'   => self::CACHE_24_HOURS,
+                    'min_range' => 0,
+                ],
+            ]
+        );
+
+        $this->logger->debug('start', ['url' => $url, 'cache' => $cache]);
 
         /** @var ScreenshotResponse $response */
         $response = $this->client->createScreenshot($url, [
-            'cache' => self::CACHE_24_HOURS,
+            'cache' => $cache,
         ]);
 
         if (!$response->isSuccess()) {
