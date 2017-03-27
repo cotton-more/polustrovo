@@ -4,7 +4,8 @@ namespace App\Service\ScreenshotStorage;
 
 use App\Service\Browshot\Response\ScreenshotResponse;
 use GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\ClientException;
+use Projek\Slim\Monolog;
 
 class FileStorage implements StorageInterface
 {
@@ -14,48 +15,81 @@ class FileStorage implements StorageInterface
     private $dir;
 
     /**
+     * @var Monolog
+     */
+    private $logger;
+
+    /**
      * EloquentStorage constructor.
      * @param $dir
+     * @param Monolog $logger
      */
-    public function __construct($dir)
+    public function __construct($dir, Monolog $logger)
     {
         $this->dir = $dir;
+        $this->logger = $logger;
     }
 
-    public function getName()
+    public function getPriority(): int
     {
-        return 'file';
+        return 500;
     }
 
     /**
-     * @param string $key
      * @param ScreenshotResponse $response
      * @return bool
      */
-    public function store(string $key, ScreenshotResponse $response): bool
+    public function store(ScreenshotResponse $response): bool
     {
-        if (ScreenshotResponse::STATUS_FINISHED !== $response->get('status')) {
+        $this->logger->debug('store to a file', $response->toArray());
+        if (!$response->isStatusFinished()) {
+            $this->logger->debug('response not finished');
             return false;
         }
 
         $result = false;
 
-        $path = $this->dir.'/'.$key;
+        $filename = $response->getFilename() ?: $this->generateFilename($response);
+
+        $this->logger->debug('setting filename', [
+            'filename' => $filename,
+        ]);
 
         $client = new Client();
-        $promise = $client->requestAsync('GET', $response->get('screenshot_url'));
-        $promise->then(function (ResponseInterface $res) use ($path, $result) {
-            if (200 === $res->getStatusCode()) {
-                $content = $res->getBody()->getContents();
-                if (file_put_contents($path, $content)) {
-                    $result = true;
-                }
-            }
+        try {
+            $res = $client->request('GET', $response->get('screenshot_url'));
+        } catch (ClientException $ex) {
+            $this->logger->warning('client error', [
+                'message' => $ex->getMessage(),
+                'code' => $ex->getCode(),
+            ]);
 
-            return $result;
-        });
-        $promise->wait();
+            $response->setError($ex->getMessage(), $ex->getCode());
+            return false;
+        }
+
+        $content = $res->getBody()->getContents();
+        if ($size = file_put_contents($this->dir.'/'.$filename, $content)) {
+            $response->setFilename($filename);
+            $result = true;
+        }
+
+        $this->logger->debug('end', [
+            'size' => $size,
+            'result' => $result,
+        ]);
 
         return $result;
+    }
+
+    /**
+     * @param ScreenshotResponse $response
+     * @return string
+     */
+    public function generateFilename(ScreenshotResponse $response): string
+    {
+        $filename = time().'_'.$response->get('id');
+
+        return $filename;
     }
 }

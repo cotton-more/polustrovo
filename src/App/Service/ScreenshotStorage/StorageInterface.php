@@ -8,9 +8,14 @@ interface StorageInterface
 {
     /**
      * Handle screenshot storing
-     * @param string $key
      * @param ScreenshotResponse $response
      * @return bool
      */
-    public function store(string $key, ScreenshotResponse $response): bool;
+    public function store(ScreenshotResponse $response): bool;
+
+    /**
+     * Storage priority
+     * @return int
+     */
+    public function getPriority(): int;
 }

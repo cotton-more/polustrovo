@@ -6,6 +6,7 @@ use App\Repository\ScreenshotRepository;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\ScreenshotStorage\StorageInterface;
+use App\Service\ScreenshotStorage\StoragePriorityQueue;
 use Projek\Slim\Monolog;
 
 class ScreenshotService
@@ -28,32 +29,27 @@ class ScreenshotService
     private $repository;
 
     /**
-     * @var StorageInterface[]
+     * @var StoragePriorityQueue
      */
-    private $screenshotStorageList;
+    private $storageQueue;
 
     /**
      * ScreenshotService constructor.
      * @param ApiClient $client
      * @param Monolog $logger
      * @param ScreenshotRepository $repository
+     * @param StoragePriorityQueue $storageQueue
      */
     public function __construct(
         ApiClient $client,
         Monolog $logger,
-        ScreenshotRepository $repository
+        ScreenshotRepository $repository,
+        StoragePriorityQueue $storageQueue
     ) {
         $this->client = $client;
         $this->logger = $logger;
         $this->repository = $repository;
-    }
-
-    /**
-     * @param StorageInterface $storage
-     */
-    public function addScreenshotStorage(StorageInterface $storage)
-    {
-        $this->screenshotStorageList[] = $storage;
+        $this->storageQueue = $storageQueue;
     }
 
     /**
@@ -87,6 +83,7 @@ class ScreenshotService
         }
 
         $this->store($response);
+        $this->store($response);
 
         $this->logger->debug('end');
 
@@ -98,13 +95,10 @@ class ScreenshotService
      */
     public function store(ScreenshotResponse $response)
     {
-        $key = time().'_'.$response->get('id');
-
-        $this->logger->debug('storing', ['key' => $key]);
-
-        foreach ($this->screenshotStorageList as $screenshotStorage) {
+        /** @var StorageInterface $screenshotStorage */
+        foreach ($this->storageQueue as $screenshotStorage) {
             try {
-                $screenshotStorage->store($key, $response);
+                $screenshotStorage->store($response);
             } catch (\Exception $ex) {
                 $this->logger->warning($ex->getMessage());
             }

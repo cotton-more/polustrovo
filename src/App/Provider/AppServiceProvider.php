@@ -2,8 +2,6 @@
 
 namespace App\Provider;
 
-use App\Http\IndexController;
-use App\Model\Screenshot;
 use App\Repository\ScreenshotRepository;
 use App\Repository\TelegramSendPhotoRepository;
 use App\Service\Browshot\ApiClient;
@@ -12,6 +10,7 @@ use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
 use App\Service\ScreenshotStorage\FileStorage;
+use App\Service\ScreenshotStorage\StoragePriorityQueue;
 use App\Service\ScreenshotStorage\TelegramStorage;
 use League\Glide\Responses\SlimResponseFactory;
 use League\Glide\ServerFactory as GlideServerFactory;
@@ -60,33 +59,44 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot.file_storage'] = function (Container $c) {
-            $storage = new FileStorage($c['config']['screenshot_dir']);
+            $storage = new FileStorage($c['config']['screenshot_dir'], $c['logger']);
 
             return $storage;
         };
 
         $pimple['screenshot.doctrine_storage'] = function (Container $c) {
-            $storage = new DoctrineStorage($c['db'], $c['uuid.factory']);
+            $storage = new DoctrineStorage($c['db'], $c['uuid.factory'], $c['logger']);
 
             return $storage;
         };
 
         $pimple['screenshot.telegram_storage'] = function (Container $c) {
-            $storage = new TelegramStorage($c['telegram'], $c['repository.telegram_send_photo']);
+            $storage = new TelegramStorage(
+                $c['telegram'],
+                $c['repository.telegram_send_photo'],
+                $c['logger']
+            );
 
             return $storage;
+        };
+
+        $pimple['screenshot.storage_queue'] = function (Container $c) {
+            $queue = new StoragePriorityQueue($c['logger']);
+
+            $queue->add($c['screenshot.file_storage'], 800);
+            $queue->add($c['screenshot.doctrine_storage'], 500);
+            $queue->add($c['screenshot.telegram_storage'], 100);
+
+            return $queue;
         };
 
         $pimple['screenshot'] = function (Container $c) {
             $service = new ScreenshotService(
                 $c['browshot.api_client'],
                 $c['logger'],
-                $c['repository.screenshot']
+                $c['repository.screenshot'],
+                $c['screenshot.storage_queue']
             );
-
-            $service->addScreenshotStorage($c['screenshot.file_storage']);
-            $service->addScreenshotStorage($c['screenshot.doctrine_storage']);
-            $service->addScreenshotStorage($c['screenshot.telegram_storage']);
 
             return $service;
         };

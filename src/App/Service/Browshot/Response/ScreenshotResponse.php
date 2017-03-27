@@ -22,6 +22,16 @@ class ScreenshotResponse
     private $code;
 
     /**
+     * @var string
+     */
+    private $filename;
+
+    /**
+     * @var string
+     */
+    private $screenshotId;
+
+    /**
      * @param array $data
      * @param int $code
      */
@@ -79,5 +89,62 @@ class ScreenshotResponse
         $error = $this->get('error');
 
         return $isOk && !$error;
+    }
+
+    public function isStatusFinished()
+    {
+        return self::STATUS_FINISHED === $this->get('status');
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename(): string
+    {
+        return (string) $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     * @return ScreenshotResponse
+     */
+    public function setFilename(string $filename): ScreenshotResponse
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScreenshotId(): string
+    {
+        return (string) $this->screenshotId;
+    }
+
+    /**
+     * @param string $screenshotId
+     * @return ScreenshotResponse
+     */
+    public function setScreenshotId(string $screenshotId): ScreenshotResponse
+    {
+        $this->screenshotId = $screenshotId;
+        return $this;
+    }
+
+    /**
+     * @param string $error
+     * @param int|null $code
+     * @return ScreenshotResponse
+     */
+    public function setError(string $error, int $code = null): ScreenshotResponse
+    {
+        $this->container['error'] = $error;
+
+        if (null !== $code) {
+            $this->container['code'] = $code;
+        }
+
+        return $this;
     }
 }

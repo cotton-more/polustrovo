@@ -5,6 +5,7 @@ namespace App\Service\ScreenshotStorage;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
 use Doctrine\DBAL\Connection;
+use Projek\Slim\Monolog;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 class DoctrineStorage implements StorageInterface
@@ -19,45 +20,70 @@ class DoctrineStorage implements StorageInterface
      */
     private $uuidFactory;
 
-    public function __construct(Connection $conn, UuidFactoryInterface $uuidFactory)
+    /**
+     * @var Monolog
+     */
+    private $logger;
+
+    /**
+     * DoctrineStorage constructor.
+     * @param Connection $conn
+     * @param UuidFactoryInterface $uuidFactory
+     * @param Monolog $logger
+     */
+    public function __construct(Connection $conn, UuidFactoryInterface $uuidFactory, Monolog $logger)
     {
         $this->conn = $conn;
         $this->uuidFactory = $uuidFactory;
+        $this->logger = $logger;
     }
 
-    public function getName()
+    public function getPriority(): int
     {
-        return 'db';
+        return 900;
     }
 
     /**
      * Handle screenshot storing
      *
-     * @param string $key
      * @param ScreenshotResponse $screenshotResponse
      * @return bool
      */
-    public function store(string $key, ScreenshotResponse $screenshotResponse): bool
+    public function store(ScreenshotResponse $screenshotResponse): bool
     {
+        $this->logger->debug('store to database', $screenshotResponse->toArray());
         $now = Carbon::now();
 
         $data = [
-            'screenshot_id' => $this->uuidFactory->uuid4()->toString(),
             'status'        => $screenshotResponse->get('status'),
             'browshot_id'   => $screenshotResponse->get('id'),
             'created_at'    => $now->toDateTimeString(),
+            'path'          => $screenshotResponse->getFilename(),
+            'error'         => $screenshotResponse->get('error'),
         ];
 
-        // add shooted time and path to a file
-        if (ScreenshotResponse::STATUS_FINISHED === $screenshotResponse->get('status')) {
-            $finishedAt = floor($screenshotResponse->get('finished') / 1000);
-            $shootedAt = Carbon::createFromTimestamp($finishedAt);
-            $data['shooted_at'] = $shootedAt->toDateTimeString();
+        $screenshotId = $screenshotResponse->getScreenshotId() ?: $this->uuidFactory->uuid4()->toString();
 
-            $data['path'] = $key;
+        $data['screenshot_id'] = $screenshotId;
+
+        if (ScreenshotResponse::STATUS_FINISHED === $screenshotResponse->get('status')) {
+            if ($finishedAt = $screenshotResponse->finished()) {
+                $data['shooted_at'] = $finishedAt->toDateTimeString();
+
+            }
         }
 
+        $this->logger->debug('set data', $data);
+
         $result = $this->conn->insert('screenshot', $data);
+
+        if ($result) {
+            $screenshotResponse->setScreenshotId($screenshotId);
+        }
+
+        $this->logger->debug('end', [
+            'result' => $result,
+        ]);
 
         return $result > 0;
     }
