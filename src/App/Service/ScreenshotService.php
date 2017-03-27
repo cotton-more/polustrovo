@@ -10,6 +10,8 @@ use Projek\Slim\Monolog;
 
 class ScreenshotService
 {
+    const CACHE_24_HOURS = 86400;
+
     /**
      * @var ApiClient
      */
@@ -63,7 +65,9 @@ class ScreenshotService
         $this->logger->debug('start', ['url' => $url]);
 
         /** @var ScreenshotResponse $response */
-        $response = $this->client->createScreenshot($url);
+        $response = $this->client->createScreenshot($url, [
+            'cache' => self::CACHE_24_HOURS,
+        ]);
 
         if (!$response->isSuccess()) {
             $this->logger->warning('fail to get screenshot', $response->toArray());

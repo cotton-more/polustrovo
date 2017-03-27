@@ -9,21 +9,12 @@
 namespace App;
 
 
+use App\Entity\Entity;
 use Carbon\Carbon;
 
-class Screenshot
+class Screenshot extends Entity
 {
-    private $attributes = [];
 
-    public function __set($key, $value)
-    {
-        $this->attributes[$key] = $value;
-    }
-
-    public function attr($name)
-    {
-        return isset($this->attributes) ? $this->attributes[$name] : null;
-    }
 
     public function id()
     {

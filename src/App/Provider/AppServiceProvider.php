@@ -5,6 +5,7 @@ namespace App\Provider;
 use App\Http\IndexController;
 use App\Model\Screenshot;
 use App\Repository\ScreenshotRepository;
+use App\Repository\TelegramSendPhotoRepository;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Configuration;
 use App\Service\GlideScreenshotService;
@@ -32,8 +33,14 @@ class AppServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
-        $pimple['screenshot.repository'] = function (Container $c) {
+        $pimple['repository.screenshot'] = function (Container $c) {
             $repository = new ScreenshotRepository($c['db']);
+
+            return $repository;
+        };
+
+        $pimple['repository.telegram_send_photo'] = function (Container $c) {
+            $repository = new TelegramSendPhotoRepository($c['db']);
 
             return $repository;
         };
@@ -65,13 +72,17 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot.telegram_storage'] = function (Container $c) {
-            $storage = new TelegramStorage($c['telegram'], $c['screenshot.repository']);
+            $storage = new TelegramStorage($c['telegram'], $c['repository.telegram_send_photo']);
 
             return $storage;
         };
 
         $pimple['screenshot'] = function (Container $c) {
-            $service = new ScreenshotService($c['browshot.api_client'], $c['logger'], $c['screenshot.repository']);
+            $service = new ScreenshotService(
+                $c['browshot.api_client'],
+                $c['logger'],
+                $c['repository.screenshot']
+            );
 
             $service->addScreenshotStorage($c['screenshot.file_storage']);
             $service->addScreenshotStorage($c['screenshot.doctrine_storage']);

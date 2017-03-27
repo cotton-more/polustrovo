@@ -2,7 +2,8 @@
 
 namespace App\Service\Telegram;
 
-use App\Repository\ScreenshotRepository;
+use App\Entity\TelegramSendPhoto;
+use App\Repository\TelegramSendPhotoRepository;
 use App\Screenshot;
 use TelegramBot\Api\BotApi;
 
@@ -19,7 +20,7 @@ class TelegramService
     private $chatId;
 
     /**
-     * @var ScreenshotRepository
+     * @var TelegramSendPhotoRepository
      */
     private $repository;
 
@@ -27,13 +28,21 @@ class TelegramService
      * TelegramService constructor.
      * @param BotApi $botApi
      * @param $chatId
-     * @param ScreenshotRepository $repository
+     * @param TelegramSendPhotoRepository $repository
      */
-    public function __construct(BotApi $botApi, $chatId, ScreenshotRepository $repository)
+    public function __construct(BotApi $botApi, $chatId, TelegramSendPhotoRepository $repository)
     {
         $this->botApi = $botApi;
         $this->chatId = $chatId;
         $this->repository = $repository;
+    }
+
+    /**
+     * @return string
+     */
+    public function getChatId(): string
+    {
+        return $this->chatId;
     }
 
     /**
@@ -49,27 +58,28 @@ class TelegramService
     }
 
     /**
-     * @param Screenshot $screenshot
+     * @param string $path
      * @return \CURLFile
      */
-    public function getPhoto(Screenshot $screenshot)
+    public function getPhoto(string $path)
     {
-        $photo = new \CURLFile('./screenshots/'.$screenshot->attr('path'));
+        $photo = new \CURLFile('./screenshots/'.$path);
         return $photo;
     }
 
-    /**
-     * @param Screenshot $screenshot
-     * @return bool|\TelegramBot\Api\Types\Message
-     */
-    public function sendScreenshot(Screenshot $screenshot)
+    public function sendPhoto()
     {
-        if ($path = $screenshot->attr('path')) {
-            $photo = $this->getPhoto($screenshot);
+        /** @var TelegramSendPhoto $row */
+        $row = $this->repository->getNext();
 
-            return $this->botApi->sendPhoto($this->chatId, $photo);
+        if (false === $row) {
+            return;
         }
 
-        return false;
+        $photo = $this->getPhoto($row->attr('path'));
+
+        if ($message = $this->botApi->sendPhoto($this->chatId, $photo)) {
+            $this->repository->markAsPublished($row->attr('id'));
+        }
     }
 }

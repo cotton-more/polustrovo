@@ -3,6 +3,7 @@
 namespace App\Service\ScreenshotStorage;
 
 use App\Repository\ScreenshotRepository;
+use App\Repository\TelegramSendPhotoRepository;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\Telegram\TelegramService;
 
@@ -14,14 +15,14 @@ class TelegramStorage implements StorageInterface
     private $telegramService;
 
     /**
-     * @var ScreenshotRepository
+     * @var TelegramSendPhotoRepository
      */
-    private $screenshotRepository;
+    private $repository;
 
-    public function __construct(TelegramService $telegramService, ScreenshotRepository $screenshotRepository)
+    public function __construct(TelegramService $telegramService, TelegramSendPhotoRepository $repository)
     {
         $this->telegramService = $telegramService;
-        $this->screenshotRepository = $screenshotRepository;
+        $this->repository = $repository;
     }
 
     /**
@@ -32,12 +33,16 @@ class TelegramStorage implements StorageInterface
      */
     public function store(string $key, ScreenshotResponse $response): bool
     {
-        dump($response);
-        if (ScreenshotResponse::STATUS_FINISHED === $response->get('status')) {
-            $browshotId = $response->get('id');
-            $screenshot = $this->screenshotRepository->findByBrowshotId($browshotId);
+        $data = [
+            'chat_id' => $this->telegramService->getChatId(),
+            'path'    => $key,
+        ];
 
-            $this->telegramService->sendScreenshot($screenshot);
+        // add shooted time and path to a file
+        if (ScreenshotResponse::STATUS_FINISHED === $response->get('status')) {
+            $this->repository->getDb()->insert('telegram_send_photo', $data);
+
+            return true;
         }
 
         return false;

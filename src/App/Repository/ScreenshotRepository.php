@@ -6,31 +6,16 @@ use App\Screenshot;
 use App\ScreenshotsDaily;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOStatement;
 
-class ScreenshotRepository
+class ScreenshotRepository extends Repository
 {
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * ScreenshotRepository constructor.
-     * @param Connection $db
-     */
-    public function __construct(Connection $db)
-    {
-        $this->db = $db;
-    }
-
     public function getLatest()
     {
         $sql = 'SELECT * FROM screenshot WHERE status = ? ORDER BY created_at DESC LIMIT 1';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED]);
+        $stmt = $this->getDb()->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED]);
 
         $image = $stmt->fetchObject(Screenshot::class);
 
@@ -43,7 +28,10 @@ class ScreenshotRepository
         $sql = 'SELECT * FROM screenshot WHERE status = ? AND created_at >= ? ORDER BY created_at ASC';
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED, $monday]);
+        $stmt = $this->getDb()->executeQuery($sql, [
+            ScreenshotResponse::STATUS_FINISHED,
+            $monday,
+        ]);
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
 
@@ -62,7 +50,7 @@ GROUP BY date(shooted_at)
 SQL;
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql);
+        $stmt = $this->getDb()->executeQuery($sql);
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, ScreenshotsDaily::class);
 
@@ -77,7 +65,7 @@ SQL;
         $end = $start->copy()->addDay();
 
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED, $start, $end]);
+        $stmt = $this->getDb()->executeQuery($sql, [ScreenshotResponse::STATUS_FINISHED, $start, $end]);
 
         $result = $stmt->fetchAll(\PDO::FETCH_CLASS, Screenshot::class);
 
@@ -90,7 +78,7 @@ SQL;
 SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at ASC;
 SQL;
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [
+        $stmt = $this->getDb()->executeQuery($sql, [
             ScreenshotResponse::STATUS_FINISHED,
             ScreenshotResponse::STATUS_ERROR,
         ]);
@@ -107,7 +95,7 @@ SQL;
      */
     public function deleteBy(array $identifier)
     {
-        return $this->db->delete('screenshot', $identifier);
+        return $this->getDb()->delete('screenshot', $identifier);
     }
 
     public function findByBrowshotId(string $browshotId)
@@ -116,7 +104,7 @@ SQL;
 SELECT s.* FROM screenshot s WHERE s.browshot_id = ?;
 SQL;
         /** @var PDOStatement $stmt */
-        $stmt = $this->db->executeQuery($sql, [
+        $stmt = $this->getDb()->executeQuery($sql, [
             $browshotId,
         ]);
 

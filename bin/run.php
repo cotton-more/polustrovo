@@ -13,6 +13,6 @@ $kernel = new AppKernel($app);
 
 $app->command(new Cilex\Command\TakeScreenshot());
 $app->command(new Cilex\Command\DownloadScreenshot());
-$app->command(new Cilex\Command\TelegramSendLatestScreenshotCommand());
+$app->command(new Cilex\Command\TelegramSendPhotoCommand());
 
 $app->run();

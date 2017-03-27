@@ -31,7 +31,7 @@ class TelegramBotServiceProvider implements ServiceProviderInterface
             $service = new TelegramService(
                 $c['telegram_bot.bot_api'],
                 $c['telegram_bot.chat_id'],
-                $c['screenshot.repository']
+                $c['repository.telegram_send_photo']
             );
 
             return $service;
