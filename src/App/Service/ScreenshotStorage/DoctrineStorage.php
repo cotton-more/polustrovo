@@ -54,13 +54,20 @@ class DoctrineStorage implements StorageInterface
         $this->logger->debug('store to database', $screenshotResponse->toArray());
         $now = Carbon::now();
 
+        $error = $screenshotResponse->get('error');
+
         $data = [
             'status'        => $screenshotResponse->get('status'),
             'browshot_id'   => $screenshotResponse->get('id'),
             'created_at'    => $now->toDateTimeString(),
             'path'          => $screenshotResponse->getFilename(),
-            'error'         => $screenshotResponse->get('error'),
+            'error'         => $error,
         ];
+
+        // requeue if there is an error but target url exists
+        if ($error && $screenshotResponse->get('screenshot_url')) {
+            $data['status'] = ScreenshotResponse::STATUS_IN_QUEUE;
+        }
 
         $screenshotId = $screenshotResponse->getScreenshotId() ?: $this->uuidFactory->uuid4()->toString();
 

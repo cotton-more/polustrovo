@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Screenshot;
+use App\Entity\Screenshot;
 use App\ScreenshotsDaily;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
