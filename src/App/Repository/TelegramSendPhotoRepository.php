@@ -1,13 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: inikulin
- * Date: 27.03.17
- * Time: 13:17
- */
 
 namespace App\Repository;
 
+use App\Entity\Screenshot;
 use App\Entity\TelegramSendPhoto;
 use Carbon\Carbon;
 use Doctrine\DBAL\Driver\PDOStatement;
@@ -33,5 +28,22 @@ class TelegramSendPhotoRepository extends Repository
         $this->getDb()->update('telegram_send_photo', [
             'published_at' => $now->toDateTimeString(),
         ], ['id' => $id]);
+    }
+
+    public function getScreenshot($screenshotId)
+    {
+        $sql = <<<SQL
+SELECT s.*
+FROM screenshot s
+JOIN telegram_send_photo tsp ON tsp.screenshot_id = s.screenshot_id
+WHERE tsp.screenshot_id = ?
+SQL;
+
+        /** @var PDOStatement $stmt */
+        $stmt = $this->getDb()->executeQuery($sql, [$screenshotId]);
+
+        $result = $stmt->fetchObject(Screenshot::class);
+
+        return $result;
     }
 }

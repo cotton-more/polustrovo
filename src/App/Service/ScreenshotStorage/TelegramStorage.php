@@ -56,8 +56,9 @@ class TelegramStorage implements StorageInterface
         $this->logger->debug('store to telegram');
 
         $data = [
-            'chat_id' => $this->telegramService->getChatId(),
-            'path'    => $response->getFilename(),
+            'chat_id'       => $this->telegramService->getChatId(),
+            'path'          => $response->getFilename(),
+            'screenshot_id' => $response->getScreenshotId() ?: null,
         ];
 
         $this->logger->debug('data', $data);

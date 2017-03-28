@@ -2,9 +2,9 @@
 
 namespace App\Service\Telegram;
 
+use App\Entity\Screenshot;
 use App\Entity\TelegramSendPhoto;
 use App\Repository\TelegramSendPhotoRepository;
-use App\Screenshot;
 use TelegramBot\Api\BotApi;
 
 class TelegramService
@@ -76,9 +76,21 @@ class TelegramService
             return;
         }
 
+        /** @var Screenshot $screenshot */
+        $screenshot = $this->repository->getScreenshot($row->attr('screenshot_id'));
+
+        if (false === $screenshot) {
+            return;
+        }
+
+        $caption = null;
+        if ($shootedAt = $screenshot->shootedAt()) {
+            $caption = $shootedAt->toRfc850String();
+        }
+
         $photo = $this->getPhoto($row->attr('path'));
 
-        if ($message = $this->botApi->sendPhoto($this->chatId, $photo)) {
+        if ($message = $this->botApi->sendPhoto($this->chatId, $photo, $caption)) {
             $this->repository->markAsPublished($row->attr('id'));
         }
     }

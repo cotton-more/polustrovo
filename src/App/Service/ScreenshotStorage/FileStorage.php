@@ -56,16 +56,27 @@ class FileStorage implements StorageInterface
         ]);
 
         $client = new Client();
-        try {
-            $res = $client->request('GET', $response->get('screenshot_url'));
-        } catch (ClientException $ex) {
-            $this->logger->warning('client error', [
-                'message' => $ex->getMessage(),
-                'code' => $ex->getCode(),
-            ]);
 
-            $response->setError($ex->getMessage(), $ex->getCode());
-            return false;
+        $retry = 3;
+
+        while ($retry) {
+            try {
+                $res = $client->request('GET', $response->get('screenshot_url'));
+                $retry = 0;
+            } catch (ClientException $ex) {
+                $retry--;
+
+                $this->logger->warning('client error', [
+                    'retry' => $retry,
+                    'message' => $ex->getMessage(),
+                    'code' => $ex->getCode(),
+                ]);
+
+                if (0 === $retry) {
+                    $response->setError($ex->getMessage(), $ex->getCode());
+                    return false;
+                }
+            }
         }
 
         $content = $res->getBody()->getContents();

@@ -20,4 +20,18 @@ class Screenshot extends Entity
 
         return $date;
     }
+
+    /**
+     * @return Carbon|null
+     */
+    public function shootedAt()
+    {
+        $date = null;
+
+        if ($shootedAt = $this->attr('shooted_at')) {
+            $date = Carbon::createFromFormat('Y-m-d H:i:s', $shootedAt);
+        }
+
+        return $date;
+    }
 }
