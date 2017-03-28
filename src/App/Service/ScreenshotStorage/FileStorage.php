@@ -9,6 +9,8 @@ use Projek\Slim\Monolog;
 
 class FileStorage implements StorageInterface
 {
+    const MIN_SIZE_BYTES = 204800;
+
     /**
      * @var string
      */
@@ -47,6 +49,7 @@ class FileStorage implements StorageInterface
             return false;
         }
 
+        $size = 0;
         $result = false;
 
         $filename = $response->getFilename() ?: $this->generateFilename($response);
@@ -58,10 +61,13 @@ class FileStorage implements StorageInterface
         $client = new Client();
 
         $retry = 3;
-
         while ($retry) {
             try {
                 $res = $client->request('GET', $response->get('screenshot_url'));
+
+                $content = $res->getBody()->getContents();
+                $size = file_put_contents($this->dir.'/'.$filename, $content);
+
                 $retry = 0;
             } catch (ClientException $ex) {
                 $retry--;
@@ -76,13 +82,16 @@ class FileStorage implements StorageInterface
                     $response->setError($ex->getMessage(), $ex->getCode());
                     return false;
                 }
+
+                sleep(3);
             }
         }
 
-        $content = $res->getBody()->getContents();
-        if ($size = file_put_contents($this->dir.'/'.$filename, $content)) {
+        if ($size > self::MIN_SIZE_BYTES) {
             $response->setFilename($filename);
             $result = true;
+        } else {
+            $response->setError('Insufficient screenshot size', ScreenshotResponse::INSUFFICIENT_SIZE_CODE);
         }
 
         $this->logger->debug('end', [

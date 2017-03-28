@@ -11,6 +11,8 @@ class ScreenshotResponse
     const STATUS_FINISHED   = 'finished';
     const STATUS_ERROR      = 'error';
 
+    const INSUFFICIENT_SIZE_CODE = 0x1000;
+
     /**
      * @var mixed[]
      */
