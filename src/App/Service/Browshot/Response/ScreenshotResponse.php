@@ -101,9 +101,9 @@ class ScreenshotResponse
     /**
      * @return string
      */
-    public function getFilename(): string
+    public function getFilename()
     {
-        return (string) $this->filename;
+        return $this->filename;
     }
 
     /**
@@ -119,9 +119,9 @@ class ScreenshotResponse
     /**
      * @return string
      */
-    public function getScreenshotId(): string
+    public function getScreenshotId()
     {
-        return (string) $this->screenshotId;
+        return $this->screenshotId;
     }
 
     /**

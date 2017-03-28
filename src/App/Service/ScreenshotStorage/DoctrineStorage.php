@@ -54,7 +54,7 @@ class DoctrineStorage implements StorageInterface
         $this->logger->debug('store to database', $screenshotResponse->toArray());
         $now = Carbon::now();
 
-        $error = $screenshotResponse->get('error');
+        $error = $screenshotResponse->get('error') ?: null;
 
         $data = [
             'status'        => $screenshotResponse->get('status'),
@@ -76,7 +76,6 @@ class DoctrineStorage implements StorageInterface
         if (ScreenshotResponse::STATUS_FINISHED === $screenshotResponse->get('status')) {
             if ($finishedAt = $screenshotResponse->finished()) {
                 $data['shooted_at'] = $finishedAt->toDateTimeString();
-
             }
         }
 

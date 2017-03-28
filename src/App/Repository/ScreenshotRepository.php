@@ -75,12 +75,19 @@ SQL;
     public function getQueued()
     {
         $sql = <<<SQL
-SELECT s.* FROM screenshot s WHERE s.status NOT IN (?, ?) ORDER BY created_at ASC;
+SELECT s.*
+FROM screenshot s
+WHERE
+  (s.status NOT IN (?, ?))
+  OR
+  (s.status = ? AND s.error IS NOT NULL)
+ORDER BY created_at ASC;
 SQL;
         /** @var PDOStatement $stmt */
         $stmt = $this->getDb()->executeQuery($sql, [
             ScreenshotResponse::STATUS_FINISHED,
             ScreenshotResponse::STATUS_ERROR,
+            ScreenshotResponse::STATUS_FINISHED,
         ]);
 
         /** @var Screenshot $screenshot */
