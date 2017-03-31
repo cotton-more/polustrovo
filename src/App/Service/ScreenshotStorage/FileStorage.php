@@ -63,7 +63,7 @@ class FileStorage implements StorageInterface
         $retry = 3;
         while ($retry) {
             try {
-                $res = $client->request('GET', $response->get('screenshot_url'));
+                $res = $client->request('GET', $response->screenshotUrl());
 
                 $content = $res->getBody()->getContents();
                 $size = file_put_contents($this->dir.'/'.$filename, $content);
@@ -79,7 +79,8 @@ class FileStorage implements StorageInterface
                 ]);
 
                 if (0 === $retry) {
-                    $response->setError($ex->getMessage(), $ex->getCode());
+                    $response->setError($ex->getMessage());
+                    $response->setCode($ex->getCode());
                     return false;
                 }
 
@@ -91,7 +92,7 @@ class FileStorage implements StorageInterface
             $response->setFilename($filename);
             $result = true;
         } else {
-            $response->setError('Insufficient screenshot size', ScreenshotResponse::INSUFFICIENT_SIZE_CODE);
+            $response->setError('Insufficient screenshot size');
         }
 
         $this->logger->debug('end', [

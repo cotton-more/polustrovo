@@ -43,6 +43,8 @@ class ApiClient
             'instance_id' => $this->configuration->getInstanceId(),
             'key'         => $this->configuration->getApiKey(),
             'cache'       => 0,
+            'delay'       => 20,
+            'flash_delay' => 30,
         ];
 
         $result = $this->callApi('GET', $uri, [

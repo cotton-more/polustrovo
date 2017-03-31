@@ -54,29 +54,28 @@ class DoctrineStorage implements StorageInterface
         $this->logger->debug('store to database', $screenshotResponse->toArray());
         $now = Carbon::now();
 
-        $error = $screenshotResponse->get('error') ?: null;
+        $error = $screenshotResponse->error();
 
         $data = [
-            'status'        => $screenshotResponse->get('status'),
-            'browshot_id'   => $screenshotResponse->get('id'),
+            'status'        => $screenshotResponse->status(),
+            'browshot_id'   => $screenshotResponse->id(),
             'created_at'    => $now->toDateTimeString(),
             'path'          => $screenshotResponse->getFilename(),
             'error'         => $error,
         ];
 
-        // requeue if there is an error but target url exists
-        if ($error && $screenshotResponse->get('screenshot_url')) {
+        // requeue if status is finished but there is an error
+        if ($screenshotResponse->isStatusFinished() && $error) {
             $data['status'] = ScreenshotResponse::STATUS_IN_QUEUE;
+            $this->logger->warning('requeue screenshot response', $screenshotResponse->toArray());
         }
 
-        $screenshotId = $screenshotResponse->getScreenshotId() ?: $this->uuidFactory->uuid4()->toString();
+        $screenshotId = $this->uuidFactory->uuid4()->toString();
 
         $data['screenshot_id'] = $screenshotId;
 
-        if (ScreenshotResponse::STATUS_FINISHED === $screenshotResponse->get('status')) {
-            if ($finishedAt = $screenshotResponse->finished()) {
-                $data['shooted_at'] = $finishedAt->toDateTimeString();
-            }
+        if ($finishedAt = $screenshotResponse->finished()) {
+            $data['shooted_at'] = $finishedAt->toDateTimeString();
         }
 
         $this->logger->debug('set data', $data);

@@ -68,9 +68,9 @@ class TelegramStorage implements StorageInterface
             $result = $this->repository->getDb()->insert('telegram_send_photo', $data);
         } else {
             $this->logger->debug('invalid response', [
-                'status' => $response->get('status'),
-                'code' => $response->get('code'),
-                'error' => $response->get('error'),
+                'status' => $response->status(),
+                'code' => $response->code(),
+                'error' => $response->error(),
             ]);
         }
 

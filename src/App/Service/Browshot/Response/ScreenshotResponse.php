@@ -67,7 +67,7 @@ class ScreenshotResponse
     public function finished()
     {
         if ($finished = $this->get('finished')) {
-            $finished = Carbon::createFromTimestamp($finished / 1000);
+            $finished = Carbon::createFromTimestamp(mb_substr($finished, 0, 10));
         }
 
         return $finished;
@@ -135,18 +135,64 @@ class ScreenshotResponse
     }
 
     /**
+     * @return string|null
+     */
+    public function status()
+    {
+        return $this->get('status');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function id()
+    {
+        return $this->get('id');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function error()
+    {
+        return $this->get('error');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function screenshotUrl()
+    {
+        return $this->get('screenshot_url');
+    }
+
+    /**
      * @param string $error
-     * @param int|null $code
      * @return ScreenshotResponse
      */
-    public function setError(string $error, int $code = null): ScreenshotResponse
+    public function setError(string $error): ScreenshotResponse
     {
         $this->container['error'] = $error;
 
-        if (null !== $code) {
-            $this->container['code'] = $code;
-        }
+        return $this;
+    }
+
+    /**
+     * @param $code
+     * @return ScreenshotResponse
+     */
+    public function setCode($code): ScreenshotResponse
+    {
+        $this->code = $code;
 
         return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function code(): int
+    {
+        return $this->code;
     }
 }
