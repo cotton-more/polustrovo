@@ -45,6 +45,8 @@ class ApiClient
             'cache'       => 0,
             'delay'       => 20,
             'flash_delay' => 30,
+            'screen_width' => 800,
+            'screen_height' => 600,
         ];
 
         $result = $this->callApi('GET', $uri, [

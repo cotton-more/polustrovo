@@ -89,11 +89,14 @@ class FileStorage implements StorageInterface
         }
 
         if ($size > self::MIN_SIZE_BYTES) {
-            $response->setFilename($filename);
             $result = true;
         } else {
+            $response->setStatus(ScreenshotResponse::STATUS_ERROR);
             $response->setError('Insufficient screenshot size');
+            $response->setCode(ScreenshotResponse::INSUFFICIENT_SIZE_CODE);
         }
+
+        $response->setFilename($filename);
 
         $this->logger->debug('end', [
             'size' => $size,
@@ -109,7 +112,7 @@ class FileStorage implements StorageInterface
      */
     public function generateFilename(ScreenshotResponse $response): string
     {
-        $filename = time().'_'.$response->get('id');
+        $filename = $response->get('id').'.png';
 
         return $filename;
     }

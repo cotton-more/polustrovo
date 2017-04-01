@@ -195,4 +195,15 @@ class ScreenshotResponse
     {
         return $this->code;
     }
+
+    /**
+     * @param string $status
+     * @return ScreenshotResponse
+     */
+    public function setStatus(string $status): ScreenshotResponse
+    {
+        $this->container['status'] = $status;
+
+        return $this;
+    }
 }

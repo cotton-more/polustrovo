@@ -46,6 +46,7 @@ class ScreenshotRepository extends Repository
         $sql = <<<SQL
 SELECT group_concat(screenshot_id) AS ids, count(*) AS count, date(shooted_at) AS date
 FROM screenshot
+WHERE shooted_at IS NOT NULL
 GROUP BY date(shooted_at)
 SQL;
 

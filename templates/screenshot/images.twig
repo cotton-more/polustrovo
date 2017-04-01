@@ -3,26 +3,22 @@
 {% block title %}List{% endblock %}
 
 {% block content %}
-    <div class="row align-center">
-        <div class="small-10 column">
-            <div class="orbit" role="region" aria-label="" data-orbit data-timer-delay="1500" data-use-m-u-i="false" data-auto-play="true">
-                <ul class="orbit-container text-center">
-                    {% for image in images %}
-                        <li class="orbit-slide">
-                            <img class="" src="/image/{{ image.id }}?w=600" alt="recent screenshot" />
-                        </li>
-                    {% endfor %}
-                </ul>
-                <nav class="orbit-bullets">
-                    {% for image in images %}
-                        {% if loop.first %}
-                            <button class="is-active" data-slide="{{ loop.index0 }}"></button>
-                        {% else %}
-                            <button data-slide="{{ loop.index0 }}"></button>
-                        {% endif %}
-                    {% endfor %}
-                </nav>
+    <div class="row">
+        {% for image in images %}
+            <div class="col-4">
+                <div class="card my-2">
+                    <img class="card-img-top img-fluid" src="/image/{{ image.id }}?w=600">
+
+                    <div class="card-block">
+                        <p class="card-text">Shooted at {{ image.attr('shooted_at') }}</p>
+                    </div>
+
+                    <div class="card-footer">
+                        <small class="text-muted">id: {{ image.id }}</small>
+                    </div>
+                </div>
             </div>
-        </div>
+
+        {% endfor %}
     </div>
 {% endblock %}

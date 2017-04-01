@@ -54,7 +54,7 @@ class DoctrineStorage implements StorageInterface
         $this->logger->debug('store to database', $screenshotResponse->toArray());
         $now = Carbon::now();
 
-        $error = $screenshotResponse->error();
+        $error = $screenshotResponse->error() ?: null;
 
         $data = [
             'status'        => $screenshotResponse->status(),
@@ -66,8 +66,10 @@ class DoctrineStorage implements StorageInterface
 
         // requeue if status is finished but there is an error
         if ($screenshotResponse->isStatusFinished() && $error) {
-            $data['status'] = ScreenshotResponse::STATUS_IN_QUEUE;
-            $this->logger->warning('requeue screenshot response', $screenshotResponse->toArray());
+            $this->logger->warning(
+                'response finished with an error',
+                $screenshotResponse->toArray()
+            );
         }
 
         $screenshotId = $this->uuidFactory->uuid4()->toString();

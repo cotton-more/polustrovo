@@ -3,19 +3,16 @@
 {% block title %}Calendar{% endblock %}
 
 {% block content %}
-<div class="row column">
+<div class="row">
     <h2>Calendar</h2>
 </div>
-<div class="row small-up-4">
+
+<div class="row">
     {% for daily in calendar %}
-    <div class="column column-block">
-        <div class="callout clearfix">
-            <p>
-                <a href="{{ path_for('screenshot_date', {'date': daily.date.toDateString}) }}" class="float-left">{{ daily.date.toDateString }}</a>
-                <span class="label float-right">{{ daily.count }}</span>
-            </p>
+        <div class="col-lg-2 col-md-3 col-6">
+            <a href="{{ path_for('screenshot_date', {'date': daily.date.toDateString}) }}">{{ daily.date.toDateString }}</a>
+            <span class="badge badge-primary">{{ daily.count }}</span>
         </div>
-    </div>
     {% endfor %}
 </div>
 {% endblock %}
