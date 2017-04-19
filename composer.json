@@ -40,7 +40,8 @@
         "ramsey/uuid": "^3.5",
         "nesbot/carbon": "^1.22",
         "guzzlehttp/guzzle": "^6.2",
-        "telegram-bot/api": "^2.2"
+        "telegram-bot/api": "^2.2",
+        "ivkos/pushbullet": "^3.3"
     },
 
     "require-dev" : {

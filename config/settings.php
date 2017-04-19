@@ -14,6 +14,11 @@ return [
         'chat_id' => getenv('TELEGRAM_CHAT_ID'),
     ],
 
+    'pushbullet' => [
+        'access_token' => getenv('PUSHBULLET_ACCESS_TOKEN'),
+        'channel' => getenv('PUSHBULLET_CHANNEL'),
+    ],
+
     'root.dir' => realpath(__DIR__.'/..'),
     'cache_dir' => realpath(__DIR__.'/../var/cache'),
 

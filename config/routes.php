@@ -26,3 +26,10 @@ $app->get('/telegram', function () {
 
     dump($bot);
 });
+
+$app->get('/pushbullet', function () {
+    /** @var \Pushbullet\Pushbullet $pb */
+    $pb = $this->get('pushbullet.notifier');
+
+    dump($pb);
+});

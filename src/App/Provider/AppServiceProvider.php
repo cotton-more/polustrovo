@@ -10,6 +10,7 @@ use App\Service\GlideScreenshotService;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
 use App\Service\ScreenshotStorage\FileStorage;
+use App\Service\ScreenshotStorage\PushbulletStorage;
 use App\Service\ScreenshotStorage\StoragePriorityQueue;
 use App\Service\ScreenshotStorage\TelegramStorage;
 use League\Glide\Responses\SlimResponseFactory;
@@ -80,12 +81,23 @@ class AppServiceProvider implements ServiceProviderInterface
             return $storage;
         };
 
+        $pimple['screenshot.pushbullet_storage'] = function (Container $c) {
+            $storage = new PushbulletStorage(
+                $c['pushbullet.notifier'],
+                $c['repository.pushbullet_channel_push'],
+                $c['logger']
+            );
+
+            return $storage;
+        };
+
         $pimple['screenshot.storage_queue'] = function (Container $c) {
             $queue = new StoragePriorityQueue($c['logger']);
 
             $queue->add($c['screenshot.file_storage'], 800);
             $queue->add($c['screenshot.doctrine_storage'], 500);
-            $queue->add($c['screenshot.telegram_storage'], 100);
+//            $queue->add($c['screenshot.telegram_storage'], 100);
+            $queue->add($c['screenshot.pushbullet_storage'], 99);
 
             return $queue;
         };
