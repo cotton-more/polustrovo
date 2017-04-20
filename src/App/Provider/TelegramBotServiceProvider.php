@@ -2,7 +2,7 @@
 
 namespace App\Provider;
 
-use App\Service\Telegram\TelegramService;
+use App\Service\Notifier\TelegramNotifier;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use TelegramBot\Api\BotApi;
@@ -27,11 +27,11 @@ class TelegramBotServiceProvider implements ServiceProviderInterface
             return $botApi;
         };
 
-        $pimple['telegram'] = function (Container $c) {
-            $service = new TelegramService(
+        $pimple['telegram.notifier'] = function (Container $c) {
+            $service = new TelegramNotifier(
                 $c['telegram_bot.bot_api'],
                 $c['telegram_bot.chat_id'],
-                $c['repository.telegram_send_photo']
+                $c['repository.screenshot_broadcast']
             );
 
             return $service;

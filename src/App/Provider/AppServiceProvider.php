@@ -2,11 +2,13 @@
 
 namespace App\Provider;
 
+use App\Repository\ScreenshotBroadcastRepository;
 use App\Repository\ScreenshotRepository;
-use App\Repository\TelegramSendPhotoRepository;
+use App\Service\Broadcast\BroadcastService;
 use App\Service\Browshot\ApiClient;
 use App\Service\Browshot\Configuration;
 use App\Service\GlideScreenshotService;
+use App\Service\Notifier\NotifierFactory;
 use App\Service\ScreenshotService;
 use App\Service\ScreenshotStorage\DoctrineStorage;
 use App\Service\ScreenshotStorage\FileStorage;
@@ -39,10 +41,16 @@ class AppServiceProvider implements ServiceProviderInterface
             return $repository;
         };
 
-        $pimple['repository.telegram_send_photo'] = function (Container $c) {
-            $repository = new TelegramSendPhotoRepository($c['db']);
+        $pimple['repository.screenshot_broadcast'] = function (Container $c) {
+            $repository = new ScreenshotBroadcastRepository($c['db']);
 
             return $repository;
+        };
+
+        $pimple['notifier.factory'] = function (Container $c) {
+            $factory = new NotifierFactory($c);
+
+            return $factory;
         };
 
         $pimple['browshot.configuration'] = function (Container $c) {
@@ -73,8 +81,8 @@ class AppServiceProvider implements ServiceProviderInterface
 
         $pimple['screenshot.telegram_storage'] = function (Container $c) {
             $storage = new TelegramStorage(
-                $c['telegram'],
-                $c['repository.telegram_send_photo'],
+                $c['telegram.notifier'],
+                $c['repository.screenshot_broadcast'],
                 $c['logger']
             );
 
@@ -84,7 +92,7 @@ class AppServiceProvider implements ServiceProviderInterface
         $pimple['screenshot.pushbullet_storage'] = function (Container $c) {
             $storage = new PushbulletStorage(
                 $c['pushbullet.notifier'],
-                $c['repository.pushbullet_channel_push'],
+                $c['repository.screenshot_broadcast'],
                 $c['logger']
             );
 
@@ -111,6 +119,15 @@ class AppServiceProvider implements ServiceProviderInterface
             );
 
             return $service;
+        };
+
+        $pimple['broadcast'] = function (Container $c) {
+            $broadcast = new BroadcastService(
+                $c['repository.screenshot_broadcast'],
+                $c['notifier.factory']
+            );
+
+            return $broadcast;
         };
 
         $pimple['glide.screenshot.server'] = function (Container $c) {

@@ -20,17 +20,11 @@ class PushbulletServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
-        $pimple['repository.pushbullet_channel_push'] = function (Container $c) {
-            $repository = new PushbulletChannelPushRepository($c['db']);
-
-            return $repository;
-        };
-
         $pimple['pushbullet.notifier'] = function (Container $c) {
             $notifier = new PushbulletNotifier(
                 $c['pushbullet'],
                 $c['config']['pushbullet.channel'],
-                $c['repository.pushbullet_channel_push']
+                $c['repository.screenshot_broadcast']
             );
 
             return $notifier;

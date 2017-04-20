@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Service\Telegram;
+namespace App\Service\Notifier;
 
 use App\Entity\Screenshot;
-use App\Entity\TelegramSendPhoto;
-use App\Repository\TelegramSendPhotoRepository;
+use App\Entity\ScreenshotBroadcast;
+use App\Repository\ScreenshotBroadcastRepository;
 use TelegramBot\Api\BotApi;
 
-class TelegramService
+class TelegramNotifier
 {
     /**
      * @var BotApi
@@ -20,17 +20,16 @@ class TelegramService
     private $chatId;
 
     /**
-     * @var TelegramSendPhotoRepository
+     * @var ScreenshotBroadcastRepository
      */
     private $repository;
 
     /**
-     * TelegramService constructor.
      * @param BotApi $botApi
      * @param $chatId
-     * @param TelegramSendPhotoRepository $repository
+     * @param ScreenshotBroadcastRepository $repository
      */
-    public function __construct(BotApi $botApi, $chatId, TelegramSendPhotoRepository $repository)
+    public function __construct(BotApi $botApi, $chatId, ScreenshotBroadcastRepository $repository)
     {
         $this->botApi = $botApi;
         $this->chatId = $chatId;
@@ -46,18 +45,6 @@ class TelegramService
     }
 
     /**
-     * @return \TelegramBot\Api\Types\Message
-     */
-    public function sendLatestScreenshot()
-    {
-        $screenshot = $this->repository->getLatest();
-
-        $photo = $this->getPhoto($screenshot);
-
-        return $this->botApi->sendPhoto($this->chatId, $photo);
-    }
-
-    /**
      * @param string $path
      * @return \CURLFile
      */
@@ -67,17 +54,12 @@ class TelegramService
         return $photo;
     }
 
-    public function sendPhoto()
+    public function notify(ScreenshotBroadcast $screenshotBroadcast)
     {
-        /** @var TelegramSendPhoto $row */
-        $row = $this->repository->getNext();
-
-        if (false === $row) {
-            return;
-        }
+        $id = $screenshotBroadcast->attr('id');
 
         /** @var Screenshot $screenshot */
-        $screenshot = $this->repository->getScreenshot($row->attr('screenshot_id'));
+        $screenshot = $this->repository->getScreenshot($id);
 
         if (false === $screenshot) {
             return;
@@ -88,10 +70,10 @@ class TelegramService
             $caption = $shootedAt->toRfc850String();
         }
 
-        $photo = $this->getPhoto($row->attr('path'));
+        $photo = $this->getPhoto($screenshot->attr('path'));
 
         if ($message = $this->botApi->sendPhoto($this->chatId, $photo, $caption)) {
-            $this->repository->markAsPublished($row->attr('id'));
+            $this->repository->markAsPublished($id);
         }
     }
 }

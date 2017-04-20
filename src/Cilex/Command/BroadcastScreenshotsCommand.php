@@ -2,23 +2,24 @@
 
 namespace Cilex\Command;
 
+use App\Service\Broadcast\BroadcastService;
 use App\Service\Notifier\PushbulletNotifier;
 use Cilex\Provider\Console\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class PushbulletSendPhotoCommand extends Command
+class BroadcastScreenshotsCommand extends Command
 {
     public function configure()
     {
-        $this->setName('pushbullet:send:photo');
+        $this->setName('broadcast:screenshots');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var PushbulletNotifier $service */
-        $service = $this->getContainer()->get('pushbullet.notifier');
+        /** @var BroadcastService $service */
+        $service = $this->getContainer()->get('broadcast');
 
-        $service->sendPhoto();
+        $service->broadcast();
     }
 }

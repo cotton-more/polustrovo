@@ -2,7 +2,7 @@
 
 namespace App\Service\ScreenshotStorage;
 
-use App\Repository\PushbulletChannelPushRepository;
+use App\Repository\ScreenshotBroadcastRepository;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use App\Service\Notifier\PushbulletNotifier;
 use Projek\Slim\Monolog;
@@ -11,7 +11,7 @@ class PushbulletStorage implements StorageInterface
 {
 
     /**
-     * @var PushbulletChannelPushRepository
+     * @var ScreenshotBroadcastRepository
      */
     private $repository;
 
@@ -25,12 +25,12 @@ class PushbulletStorage implements StorageInterface
     /**
      * PushbulletStorage constructor.
      * @param PushbulletNotifier $notifier
-     * @param PushbulletChannelPushRepository $repository
+     * @param ScreenshotBroadcastRepository $repository
      * @param Monolog $logger
      */
     public function __construct(
         PushbulletNotifier $notifier,
-        PushbulletChannelPushRepository $repository,
+        ScreenshotBroadcastRepository $repository,
         Monolog $logger
     ) {
         $this->notifier = $notifier;
@@ -49,16 +49,16 @@ class PushbulletStorage implements StorageInterface
         $this->logger->debug('store to pushbullet');
 
         $data = [
-            'channel'       => $this->notifier->getChannel(),
-            'path'          => $response->getFilename(),
+            'target'        => $this->notifier->getChannel(),
             'screenshot_id' => $response->getScreenshotId() ?: null,
+            'notifier'      => 'pushbullet',
         ];
 
         $this->logger->debug('data', $data);
 
         $result = null;
         if ($response->isStatusFinished() && $response->isSuccess()) {
-            $result = $this->repository->getDb()->insert('pushbullet_channel_push', $data);
+            $result = $this->repository->insert($data);
         } else {
             $this->logger->debug('invalid response', [
                 'status' => $response->status(),

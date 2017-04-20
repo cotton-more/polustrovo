@@ -2,21 +2,20 @@
 
 namespace App\Service\ScreenshotStorage;
 
-use App\Repository\ScreenshotRepository;
-use App\Repository\TelegramSendPhotoRepository;
+use App\Repository\ScreenshotBroadcastRepository;
 use App\Service\Browshot\Response\ScreenshotResponse;
-use App\Service\Telegram\TelegramService;
+use App\Service\Notifier\TelegramNotifier;
 use Projek\Slim\Monolog;
 
 class TelegramStorage implements StorageInterface
 {
     /**
-     * @var TelegramService
+     * @var TelegramNotifier
      */
-    private $telegramService;
+    private $notifier;
 
     /**
-     * @var TelegramSendPhotoRepository
+     * @var ScreenshotBroadcastRepository
      */
     private $repository;
 
@@ -27,16 +26,16 @@ class TelegramStorage implements StorageInterface
 
     /**
      * TelegramStorage constructor.
-     * @param TelegramService $telegramService
-     * @param TelegramSendPhotoRepository $repository
+     * @param TelegramNotifier $notifier
+     * @param ScreenshotBroadcastRepository $repository
      * @param Monolog $logger
      */
     public function __construct(
-        TelegramService $telegramService,
-        TelegramSendPhotoRepository $repository,
+        TelegramNotifier $notifier,
+        ScreenshotBroadcastRepository $repository,
         Monolog $logger
     ) {
-        $this->telegramService = $telegramService;
+        $this->notifier = $notifier;
         $this->repository = $repository;
         $this->logger = $logger;
     }
@@ -56,16 +55,16 @@ class TelegramStorage implements StorageInterface
         $this->logger->debug('store to telegram');
 
         $data = [
-            'chat_id'       => $this->telegramService->getChatId(),
-            'path'          => $response->getFilename(),
+            'target'        => $this->notifier->getChatId(),
             'screenshot_id' => $response->getScreenshotId() ?: null,
+            'notifier'      => 'telegram',
         ];
 
         $this->logger->debug('data', $data);
 
         $result = null;
         if ($response->isStatusFinished() && $response->isSuccess()) {
-            $result = $this->repository->getDb()->insert('telegram_send_photo', $data);
+            $result = $this->repository->insert($data);
         } else {
             $this->logger->debug('invalid response', [
                 'status' => $response->status(),

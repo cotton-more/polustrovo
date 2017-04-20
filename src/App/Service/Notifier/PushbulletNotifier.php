@@ -1,16 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: inikulin
- * Date: 19.04.17
- * Time: 22:28
- */
 
 namespace App\Service\Notifier;
 
-use App\Entity\PushbulletChannelPush;
 use App\Entity\Screenshot;
-use App\Repository\PushbulletChannelPushRepository;
+use App\Entity\ScreenshotBroadcast;
+use App\Repository\ScreenshotBroadcastRepository;
 use Pushbullet\Exceptions\PushbulletException;
 use Pushbullet\Pushbullet;
 
@@ -27,20 +21,20 @@ class PushbulletNotifier
     private $channel;
 
     /**
-     * @var PushbulletChannelPushRepository
+     * @var ScreenshotBroadcastRepository
      */
     private $repository;
 
     /**
      * PushbulletNotifier constructor.
      * @param Pushbullet $pushbullet
-     * @param $channel
-     * @param PushbulletChannelPushRepository $repository
+     * @param string $channel
+     * @param ScreenshotBroadcastRepository $repository
      */
     public function __construct(
         Pushbullet $pushbullet,
         $channel,
-        PushbulletChannelPushRepository $repository
+        ScreenshotBroadcastRepository $repository
     ) {
         $this->pushbullet = $pushbullet;
         $this->channel = $channel;
@@ -64,17 +58,12 @@ class PushbulletNotifier
         return realpath('./screenshots/'.$path);
     }
 
-    public function sendPhoto()
+    public function notify(ScreenshotBroadcast $screenshotBroadcast)
     {
-        /** @var PushbulletChannelPush $row */
-        $row = $this->repository->getNext();
-
-        if (false === $row) {
-            return;
-        }
+        $id = $screenshotBroadcast->attr('id');
 
         /** @var Screenshot $screenshot */
-        $screenshot = $this->repository->getScreenshot($row->attr('screenshot_id'));
+        $screenshot = $this->repository->getScreenshot($id);
 
         if (false === $screenshot) {
             return;
@@ -86,7 +75,7 @@ class PushbulletNotifier
 
         try {
             $channel->pushFile($photo);
-            $this->repository->markAsPublished($row->attr('id'));
+            $this->repository->markAsPublished($id);
         } catch (PushbulletException $exception) {
             // todo: add logger
             dump($exception); die;
