@@ -96,7 +96,7 @@ class AppServiceProvider implements ServiceProviderInterface
 
             $queue->add($c['screenshot.file_storage'], 800);
             $queue->add($c['screenshot.doctrine_storage'], 500);
-//            $queue->add($c['screenshot.telegram_storage'], 100);
+            $queue->add($c['screenshot.telegram_storage'], 100);
             $queue->add($c['screenshot.pushbullet_storage'], 99);
 
             return $queue;
