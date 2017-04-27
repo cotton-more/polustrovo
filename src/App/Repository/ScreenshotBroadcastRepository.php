@@ -9,6 +9,8 @@ use Doctrine\DBAL\Driver\PDOStatement;
 
 class ScreenshotBroadcastRepository extends Repository
 {
+    protected $tableName = 'screenshot_broadcast';
+
     public function getNext()
     {
         $sql = "SELECT * FROM screenshot_broadcast WHERE published_at IS NULL";

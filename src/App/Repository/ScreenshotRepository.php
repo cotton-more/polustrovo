@@ -10,6 +10,8 @@ use Doctrine\DBAL\Driver\PDOStatement;
 
 class ScreenshotRepository extends Repository
 {
+    protected $tableName = 'screenshot';
+
     public function getLatest()
     {
         $sql = 'SELECT * FROM screenshot WHERE status = ? ORDER BY created_at DESC LIMIT 1';

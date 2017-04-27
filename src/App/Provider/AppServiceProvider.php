@@ -74,7 +74,7 @@ class AppServiceProvider implements ServiceProviderInterface
         };
 
         $pimple['screenshot.doctrine_storage'] = function (Container $c) {
-            $storage = new DoctrineStorage($c['db'], $c['uuid.factory'], $c['logger']);
+            $storage = new DoctrineStorage($c['repository.screenshot'], $c['uuid.factory'], $c['logger']);
 
             return $storage;
         };

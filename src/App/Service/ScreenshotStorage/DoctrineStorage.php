@@ -2,18 +2,18 @@
 
 namespace App\Service\ScreenshotStorage;
 
+use App\Repository\ScreenshotRepository;
 use App\Service\Browshot\Response\ScreenshotResponse;
 use Carbon\Carbon;
-use Doctrine\DBAL\Connection;
 use Projek\Slim\Monolog;
 use Ramsey\Uuid\UuidFactoryInterface;
 
 class DoctrineStorage implements StorageInterface
 {
     /**
-     * @var Connection
+     * @var ScreenshotRepository
      */
-    private $conn;
+    private $repository;
 
     /**
      * @var UuidFactoryInterface
@@ -27,13 +27,13 @@ class DoctrineStorage implements StorageInterface
 
     /**
      * DoctrineStorage constructor.
-     * @param Connection $conn
+     * @param ScreenshotRepository $repository
      * @param UuidFactoryInterface $uuidFactory
      * @param Monolog $logger
      */
-    public function __construct(Connection $conn, UuidFactoryInterface $uuidFactory, Monolog $logger)
+    public function __construct(ScreenshotRepository $repository, UuidFactoryInterface $uuidFactory, Monolog $logger)
     {
-        $this->conn = $conn;
+        $this->repository = $repository;
         $this->uuidFactory = $uuidFactory;
         $this->logger = $logger;
     }
@@ -82,7 +82,7 @@ class DoctrineStorage implements StorageInterface
 
         $this->logger->debug('set data', $data);
 
-        $result = $this->conn->insert('screenshot', $data);
+        $result = $this->repository->insert($data);
 
         if ($result) {
             $screenshotResponse->setScreenshotId($screenshotId);

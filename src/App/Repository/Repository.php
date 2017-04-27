@@ -11,6 +11,13 @@ abstract class Repository
      */
     private $db;
 
+    protected $tableName;
+
+    public function getTableName()
+    {
+        return $this->tableName;
+    }
+
     /**
      * ScreenshotRepository constructor.
      * @param Connection $db
@@ -18,6 +25,11 @@ abstract class Repository
     public function __construct(Connection $db)
     {
         $this->db = $db;
+    }
+
+    public function insert(array $data)
+    {
+        return $this->getDb()->insert($this->getTableName(), $data);
     }
 
     /**
